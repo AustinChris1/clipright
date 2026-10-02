@@ -1,6 +1,7 @@
 "use client";
 
 import type { CheckResult } from "@clipright/engine";
+import type { Hex } from "viem";
 import { BadgeCheck, CircleSlash, ExternalLink, ImageIcon, Link2 } from "lucide-react";
 import { motion } from "motion/react";
 import type { MinuteCheck, OnRecord } from "@/lib/client/api";
@@ -29,6 +30,7 @@ export function Verdict({
   hasVideo,
   streamsChecked,
   minutesChecked,
+  owner,
 }: {
   result: CheckResult;
   stream: StreamMeta | null;
@@ -39,6 +41,7 @@ export function Verdict({
   hasVideo: boolean;
   streamsChecked: number;
   minutesChecked: number;
+  owner: Hex | null;
 }) {
   const t = tone[result.status];
   const Icon = t.icon;
@@ -77,6 +80,15 @@ export function Verdict({
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               From <span className="underline decoration-line underline-offset-8">{stream?.title ?? "a stamped stream"}</span>
             </h2>
+            {owner && (
+              <p className="mt-2 text-sm text-muted">
+                Stamped by{" "}
+                <a href={`/creators/${owner}`} className="font-mono text-ink underline decoration-line underline-offset-4">
+                  {owner.slice(0, 6)}...{owner.slice(-4)}
+                </a>
+                , a wallet linked onchain to this stream&apos;s key
+              </p>
+            )}
             <p className="mt-3 font-mono text-lg tabular">
               {timecode(result.offsetSec!)} <span className="text-muted">to</span> {timecode(result.offsetSec! + duration)}
               <span className="ml-2 text-sm text-muted">into the stream</span>

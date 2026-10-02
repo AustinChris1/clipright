@@ -10,6 +10,8 @@ import { LiveRecorder } from "@/lib/client/live";
 import { createPasskeyKey, localKey, passkeyError, unlockPasskeyKey, type StampingKey } from "@/lib/client/passkey";
 import { txUrl } from "@/lib/config";
 import type { StreamMeta } from "@/lib/types";
+import { LinkWallet } from "@/components/wallet/LinkWallet";
+import { walletLinkingEnabled } from "@/components/wallet/WalletProvider";
 
 interface StampRow {
   minute: number;
@@ -203,6 +205,12 @@ export function Studio() {
             </button>
           </div>
         </Step>
+
+        {walletLinkingEnabled && (
+          <Step n={4} title="Link your wallet">
+            <LinkWallet stampingKey={key} />
+          </Step>
+        )}
       </div>
 
       <div className="space-y-4">

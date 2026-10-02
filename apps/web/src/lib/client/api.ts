@@ -1,7 +1,7 @@
-import { stampRegistryAbi } from "@clipright/contracts/abi";
+import { creatorLinksAbi, stampRegistryAbi } from "@clipright/contracts/abi";
 import { recomputeRoot, secondProof, audioDigest, ZERO32, type MinuteFile } from "@clipright/engine";
 import type { Hex } from "viem";
-import { publicClient, REGISTRY } from "../config";
+import { LINKS, publicClient, REGISTRY } from "../config";
 import type { StampReceipt, StreamDetail, StreamListing, StreamMeta } from "../types";
 import type { StampingKey } from "./passkey";
 
@@ -116,4 +116,21 @@ export async function stampTimes(entries: { streamId: Hex; title: string; offset
     }),
   );
   return out.sort((a, b) => (a.stampedAt || Infinity) - (b.stampedAt || Infinity));
+}
+
+// The passkey key and the wallet sign the same digest; the relayer pays for the link.
+export async function linkWallet(key: StampingKey, owner: Hex, signWithWallet: (digest: Hex) => Promise<Hex>): Promise<{ tx: Hex; block: number }> {
+  if (!LINKS) throw new Error("Wallet linking is not deployed on this network");
+  const signer = key.account.address;
+  const nonce = await publicClient.readContract({ address: LINKS, abi: creatorLinksAbi, functionName: "nonces", args: [signer] });
+  const digest = await publicClient.readContract({ address: LINKS, abi: creatorLinksAbi, functionName: "linkDigest", args: [signer, owner, nonce] });
+  const ownerSig = await signWithWallet(digest);
+  const signerSig = await key.account.signMessage({ message: { raw: digest } });
+  return json(await fetch("/api/links", { method: "POST", body: JSON.stringify({ signer, owner, signerSig, ownerSig }) }));
+}
+
+export async function ownerOf(signer: Hex): Promise<Hex | null> {
+  if (!LINKS) return null;
+  const owner = await publicClient.readContract({ address: LINKS, abi: creatorLinksAbi, functionName: "ownerOf", args: [signer] });
+  return /^0x0+$/.test(owner) ? null : owner;
 }

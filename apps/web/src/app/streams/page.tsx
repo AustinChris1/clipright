@@ -21,7 +21,9 @@ export default async function StreamsPage() {
             <Link href={`/streams/${s.streamId}`} className="group flex items-center justify-between gap-4 p-5 transition hover:bg-paper">
               <div className="min-w-0">
                 <p className="truncate font-medium">{s.title}</p>
-                <p className="truncate font-mono text-xs text-muted">{s.streamId}</p>
+                <p className="truncate font-mono text-xs text-muted">
+                  {s.owner ? `by ${s.owner.slice(0, 6)}...${s.owner.slice(-4)}` : s.streamId}
+                </p>
               </div>
               <div className="flex shrink-0 items-center gap-4 text-sm">
                 <span className="font-mono tabular">

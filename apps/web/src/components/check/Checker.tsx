@@ -13,7 +13,7 @@ import { Verdict } from "./Verdict";
 type Phase =
   | { kind: "idle" }
   | { kind: "working"; stage: string; progress: number }
-  | { kind: "done"; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number }
+  | { kind: "done"; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number; owner: Hex | null }
   | { kind: "error"; message: string };
 
 export function Checker() {
@@ -29,9 +29,11 @@ export function Checker() {
       const clip = opened.print;
       let result: CheckResult;
       let details: Awaited<ReturnType<typeof getStream>>[] = [];
+      let listings: Awaited<ReturnType<typeof listStreams>> = [];
       try {
         setPhase({ kind: "working", stage: "Comparing with stamped streams", progress: 1 });
-        const streams = await listStreams();
+        listings = await listStreams();
+        const streams = listings;
         details = await Promise.all(streams.filter((s) => s.fingerprints).map((s) => getStream(s.streamId)));
         const candidates = details.map((d) => ({ streamId: d.meta.streamId, minutes: d.minutes as MinuteFile[] }));
         result = checkClip(clip, candidates);
@@ -74,6 +76,7 @@ export function Checker() {
         hasVideo: clip.frames.length > 0,
         streamsChecked: details.length,
         minutesChecked: details.reduce((n, d) => n + d.minutes.length, 0),
+        owner: listings.find((l) => l.streamId === result.streamId)?.owner ?? null,
       });
     } catch (e) {
       setPhase({ kind: "error", message: e instanceof Error ? e.message : "Something went wrong" });
@@ -157,7 +160,7 @@ export function Checker() {
                 <RotateCcw size={14} /> Check another
               </button>
             </div>
-            <Verdict result={phase.result} stream={phase.stream} chain={phase.chain} clipUrl={phase.clipUrl} duration={phase.duration} onRecord={phase.onRecord} hasVideo={phase.hasVideo} streamsChecked={phase.streamsChecked} minutesChecked={phase.minutesChecked} />
+            <Verdict result={phase.result} stream={phase.stream} chain={phase.chain} clipUrl={phase.clipUrl} duration={phase.duration} onRecord={phase.onRecord} hasVideo={phase.hasVideo} streamsChecked={phase.streamsChecked} minutesChecked={phase.minutesChecked} owner={phase.owner} />
           </motion.div>
         )}
       </AnimatePresence>
