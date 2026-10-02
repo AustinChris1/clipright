@@ -4,6 +4,8 @@
 
 Paste or drop a short video clip. Clipright tells you which stream it came from, down to the second, or tells you plainly that it does not match anything on record.
 
+**Live: [clipright.vercel.app](https://clipright.vercel.app)** on Monad testnet.
+
 Built for Monad Metropolis, Track 04: Trust, Identity & AI Infrastructure.
 
 ---
@@ -107,7 +109,8 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
 - [x] **Live on Monad testnet** at [`0xba94D0Bf2FBAd5152F152455ca48583C512efe03`](https://testnet.monadscan.com/address/0xba94D0Bf2FBAd5152F152455ca48583C512efe03), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0xba94D0Bf2FBAd5152F152455ca48583C512efe03). The four test clips pass against it in Chrome.
 - [x] **Envio HyperSync** reads the registry's full event history for the streams list and the "stamped first" ordering. Monad's public RPC limits log queries to 100 blocks (about 30 seconds of history), so without it the app can only see recent streams.
-- [ ] **Hosting and demo video.**
+- [x] **Hosted on Vercel** at [clipright.vercel.app](https://clipright.vercel.app). Every push to `main` deploys. Fingerprint files live in Vercel Blob. The four test clips pass against the live site.
+- [ ] **Demo video.**
 
 ### The test clips
 
