@@ -2,9 +2,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { NextConfig } from "next";
 
-try {
-  process.loadEnvFile(resolve(import.meta.dirname, "../../.env"));
-} catch {}
+// .env holds the relayer and Envio keys; .env.local (from `vercel env pull`) adds the Blob store token.
+for (const file of ["../../.env", "../../.env.local"]) {
+  try {
+    process.loadEnvFile(resolve(import.meta.dirname, file));
+  } catch {}
+}
 
 const chainId = process.env.NEXT_PUBLIC_CHAIN_ID || "10143";
 const deployment = resolve(import.meta.dirname, `../../packages/contracts/deployments/${chainId}.json`);
