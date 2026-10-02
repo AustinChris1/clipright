@@ -148,6 +148,8 @@ pnpm deploy:local                           # terminal 2, from packages/contract
 cd apps/web && NEXT_PUBLIC_CHAIN_ID=31337 pnpm dev
 ```
 
+**Quickest test.** A reference stream is stamped on the live registry. Download a test clip from [the docs](https://clipright.vercel.app/docs/test-it#clips) (vertical with captions, sound swapped, unrelated, scaled down, spliced) and drop it into [Check a clip](https://clipright.vercel.app/check).
+
 **Try to fool it yourself.** Download a recording from the Go live page, then cut test clips from it:
 
 ```bash

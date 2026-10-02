@@ -121,6 +121,13 @@ export function Checker() {
               <p className="mt-1 text-sm text-muted">MP4, MOV or WebM. It is fingerprinted in your browser and never uploaded.</p>
             </div>
             {phase.kind === "error" && <p className="rounded-full bg-stamp/10 px-4 py-1.5 text-sm text-stamp">{phase.message}</p>}
+            <a
+              href="/docs/test-it#clips"
+              onClick={(e) => e.stopPropagation()}
+              className="relative z-10 text-xs text-muted underline decoration-line underline-offset-4 hover:text-ink"
+            >
+              No clip handy? Download a test clip
+            </a>
           </motion.label>
         ) : phase.kind === "working" ? (
           <motion.div

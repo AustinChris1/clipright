@@ -3,6 +3,14 @@ import { Block, Callout, Code, DocHeader, NextPage, Section, Steps, Table } from
 
 export const metadata: Metadata = { title: "Test it yourself | Clipright docs" };
 
+const testClips = [
+  { file: "clip-A.mp4", done: "9:16 crop, burned-in caption, re-encoded twice", expect: "Match, 00:47.3 into the stream" },
+  { file: "clip-B.mp4", done: "Same pictures, soundtrack replaced", expect: "Pictures match, sound does not" },
+  { file: "clip-C.mp4", done: "Unrelated video", expect: "No match" },
+  { file: "clip-D.mp4", done: "Landscape, scaled down, low bitrate", expect: "Match, 01:28.6 into the stream" },
+  { file: "clip-E.mp4", done: "5 seconds of other footage spliced into the middle", expect: "Match, with the spliced seconds in red" },
+];
+
 export default function TestIt() {
   return (
     <>
@@ -12,7 +20,27 @@ export default function TestIt() {
         lead="Stamp your own footage, cut clips from it the way clippers do, and see what Clipright says. No install needed for the first path."
       />
 
-      <Section id="browser" title="In the browser, about five minutes">
+      <Section id="clips" title="In one minute: download a test clip">
+        <p>
+          A two-minute reference stream is stamped on the live registry. These clips were cut from it the way clippers do. Download one, drop it into{" "}
+          <a className="underline decoration-line underline-offset-4" href="/check">
+            Check a clip
+          </a>
+          , and compare with the expected result.
+        </p>
+        <Table
+          head={["Clip", "What was done to it", "Expected result"]}
+          rows={testClips.map((c) => [
+            <a key={c.file} className="font-mono text-sm underline decoration-line underline-offset-4" href={`/test-clips/${c.file}`} download>
+              {c.file}
+            </a>,
+            c.done,
+            c.expect,
+          ])}
+        />
+      </Section>
+
+      <Section id="browser" title="With your own footage, about five minutes">
         <Steps
           items={[
             {
