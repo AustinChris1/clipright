@@ -70,6 +70,12 @@ async function makeFixtures() {
     "[0:a]aresample=48000,asplit=2[aa][ab];[aa]atrim=0:5,asetpts=PTS-STARTPTS[a1];[ab]atrim=10:15,asetpts=PTS-STARTPTS[a3];[1:a]aresample=48000,atrim=0:5,asetpts=PTS-STARTPTS[a2];" +
     "[v1][a1][v2][a2][v3][a3]concat=n=3:v=1:a=1[v][a]",
     "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "28", "-c:a", "aac", "-b:a", "96k"]]);
+  // Clip F: the 2 seconds from 52.3 to 54.3 are cut out, the way a word gets removed from a quote.
+  clips.push(["clipF.mp4", ["-ss", "47.3", "-t", "17", "-i", f("stream.mp4"), "-filter_complex",
+    "[0:v]crop=ih*9/16:ih,scale=720:1280,setsar=1,fps=30,split=2[va][vb];[va]trim=0:5,setpts=PTS-STARTPTS[v1];[vb]trim=7:17,setpts=PTS-STARTPTS[v2];" +
+    "[0:a]aresample=48000,asplit=2[aa][ab];[aa]atrim=0:5,asetpts=PTS-STARTPTS[a1];[ab]atrim=7:17,asetpts=PTS-STARTPTS[a2];" +
+    "[v1][a1][v2][a2]concat=n=2:v=1:a=1[v][a]",
+    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "28", "-c:a", "aac", "-b:a", "96k"]]);
   for (const [name, args] of clips) if (!existsSync(f(name))) await ffmpeg(["-y", ...args, f(name)]);
 }
 
@@ -79,6 +85,7 @@ const expected: Record<string, { status: string; offset?: number }> = {
   "clipC.mp4": { status: "no-match" },
   "clipD.mp4": { status: "match", offset: 88.6 },
   "clipE.mp4": { status: "spliced", offset: 47.3 },
+  "clipF.mp4": { status: "cut", offset: 47.3 },
 };
 
 async function main() {
@@ -106,8 +113,12 @@ async function main() {
     if (r.seconds.length) console.log(`  picture bits: ${bits}`);
     const exp = expected[name];
     let pass: boolean;
-    if (exp.status === "match") pass = r.status === "match" && Math.abs((r.offsetSec ?? 0) - exp.offset!) < 0.05;
-    else if (exp.status === "spliced") {
+    if (exp.status === "match") pass = r.status === "match" && Math.abs((r.offsetSec ?? 0) - exp.offset!) < 0.05 && r.edits.length === 0;
+    else if (exp.status === "cut") {
+      const cuts = r.edits.filter((e) => e.kind === "cut");
+      console.log(`  edits: ${JSON.stringify(r.edits)}`);
+      pass = r.status === "match" && cuts.length === 1 && Math.abs(cuts[0].seconds - 2) < 0.15 && Math.abs(cuts[0].atClipSec - 5) <= 1;
+    } else if (exp.status === "spliced") {
       const red = r.seconds.filter((x) => !x.audio && !x.picture).map((x) => x.s);
       console.log(`  unmatched seconds: ${red.join(",") || "none"}`);
       pass = r.status === "match" && Math.abs((r.offsetSec ?? 0) - exp.offset!) < 0.05 && red.length >= 4 && red.every((x) => x >= 52 && x <= 57);

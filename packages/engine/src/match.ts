@@ -8,6 +8,8 @@ export const AUDIO_MIN_RATIO = 4;
 export const PICTURE_MATCH_BITS = 64;
 const PICTURE_VOTE_BITS = 70;
 const VOTE_BIN = 0.25;
+const SEGMENT_MIN_HITS = 12;
+const MAX_SEGMENTS = 4;
 
 export interface ClipFrame {
   t: number;
@@ -42,6 +44,19 @@ export interface AlsoFound {
   hits: number;
 }
 
+export interface Segment {
+  clipStart: number;
+  clipEnd: number;
+  offsetSec: number;
+  hits: number;
+}
+
+export interface Edit {
+  kind: "cut" | "inserted" | "reordered";
+  atClipSec: number;
+  seconds: number;
+}
+
 export interface CheckResult {
   status: "match" | "picture-only" | "no-match";
   streamId: Hex | null;
@@ -49,6 +64,8 @@ export interface CheckResult {
   audio: AudioMatch | null;
   seconds: SecondVerdict[];
   alsoFound: AlsoFound[];
+  segments: Segment[];
+  edits: Edit[];
 }
 
 export function buildAudioIndex(minutes: MinuteFile[]): Map<number, number[]> {
@@ -61,6 +78,17 @@ export function buildAudioIndex(minutes: MinuteFile[]): Map<number, number[]> {
         list.push(frame);
       }
   return index;
+}
+
+function perSecondAt(clip: Landmark[], index: Map<number, number[]>, clipSeconds: number, deltaFrames: number): number[] {
+  const out = new Array(Math.max(1, Math.ceil(clipSeconds))).fill(0);
+  for (const { hash, frame } of clip) {
+    const list = index.get(hash);
+    if (!list?.some((sf) => Math.abs(sf - frame - deltaFrames) <= 1)) continue;
+    const s = Math.floor(frame / FRAMES_PER_SECOND);
+    if (s < out.length) out[s]++;
+  }
+  return out;
 }
 
 export function matchAudio(clip: Landmark[], index: Map<number, number[]>, clipSeconds: number): AudioMatch | null {
@@ -84,8 +112,13 @@ export function matchAudio(clip: Landmark[], index: Map<number, number[]>, clipS
       bestD = d;
     }
   }
+  // Background is the strongest chance peak elsewhere. Peaks that are themselves a large share of the best
+  // are other genuine pieces of a stitched clip, not chance, so they are left out.
   let runnerUp = 0;
-  for (const d of hist.keys()) if (Math.abs(d - bestD) > FRAMES_PER_SECOND) runnerUp = Math.max(runnerUp, smooth(d));
+  for (const d of hist.keys()) {
+    const c = smooth(d);
+    if (Math.abs(d - bestD) > FRAMES_PER_SECOND && c < hits * 0.25) runnerUp = Math.max(runnerUp, c);
+  }
 
   let wsum = 0;
   let wd = 0;
@@ -95,21 +128,81 @@ export function matchAudio(clip: Landmark[], index: Map<number, number[]>, clipS
     wd += c * d;
   }
   const offsetFrames = wd / wsum;
-
-  const perClipSecond = new Array(Math.max(1, Math.ceil(clipSeconds))).fill(0);
-  for (const { hash, frame } of clip) {
-    const list = index.get(hash);
-    if (!list) continue;
-    if (list.some((sf) => Math.abs(sf - frame - bestD) <= 1)) {
-      const s = Math.floor(frame / FRAMES_PER_SECOND);
-      if (s < perClipSecond.length) perClipSecond[s]++;
-    }
-  }
-  return { offsetFrames, offsetSec: offsetFrames / FRAMES_PER_SECOND, hits, runnerUp, perClipSecond };
+  return { offsetFrames, offsetSec: offsetFrames / FRAMES_PER_SECOND, hits, runnerUp, perClipSecond: perSecondAt(clip, index, clipSeconds, bestD) };
 }
 
 export function audioIsMatch(m: AudioMatch | null): boolean {
   return !!m && m.hits >= AUDIO_MIN_HITS && m.hits >= AUDIO_MIN_RATIO * Math.max(1, m.runnerUp);
+}
+
+// A clip stitched from several moments lines up at several offsets. Find each offset and the seconds it explains.
+export function findSegments(clip: Landmark[], index: Map<number, number[]>, clipSeconds: number, primary: AudioMatch): { segments: Segment[]; edits: Edit[] } {
+  const items = clip.map((l) => ({ second: Math.floor(l.frame / FRAMES_PER_SECOND), ds: (index.get(l.hash) ?? []).map((sf) => sf - l.frame) }));
+  const explains = (ds: number[], d0: number) => ds.some((d) => Math.abs(d - d0) <= 1);
+  const offsets = [Math.round(primary.offsetFrames)];
+  while (offsets.length < MAX_SEGMENTS) {
+    const hist = new Map<number, number>();
+    for (const { ds } of items) if (!offsets.some((o) => explains(ds, o))) for (const d of ds) hist.set(d, (hist.get(d) ?? 0) + 1);
+    const smooth = (d: number) => (hist.get(d - 1) ?? 0) + (hist.get(d) ?? 0) + (hist.get(d + 1) ?? 0);
+    let best = 0;
+    let bestD = 0;
+    for (const d of hist.keys()) {
+      const c = smooth(d);
+      if (c > best) {
+        best = c;
+        bestD = d;
+      }
+    }
+    let background = 0;
+    for (const d of hist.keys()) if (Math.abs(d - bestD) > FRAMES_PER_SECOND) background = Math.max(background, smooth(d));
+    if (best < Math.max(SEGMENT_MIN_HITS, primary.hits * 0.1) || best < AUDIO_MIN_RATIO * Math.max(1, background)) break;
+    offsets.push(bestD);
+  }
+
+  const seconds = Math.max(1, Math.ceil(clipSeconds));
+  const counts = offsets.map((o) => perSecondAt(clip, index, clipSeconds, o));
+  const owner: number[] = [];
+  for (let s = 0; s < seconds; s++) {
+    let bi = -1;
+    for (let i = 0; i < offsets.length; i++) if (counts[i][s] >= 2 && (bi === -1 || counts[i][s] > counts[bi][s])) bi = i;
+    owner.push(bi);
+  }
+
+  let runs: Segment[] = [];
+  for (let s = 0; s < seconds; s++) {
+    if (owner[s] === -1) continue;
+    const offsetSec = offsets[owner[s]] / FRAMES_PER_SECOND;
+    const last = runs[runs.length - 1];
+    if (last && last.offsetSec === offsetSec && last.clipEnd >= s) {
+      last.clipEnd = Math.min(s + 1, clipSeconds);
+      last.hits += counts[owner[s]][s];
+    } else runs.push({ clipStart: s, clipEnd: Math.min(s + 1, clipSeconds), offsetSec, hits: counts[owner[s]][s] });
+  }
+  // A lone second claimed by a different offset in the middle of the clip is noise, not an edit.
+  if (runs.length > 2) runs = runs.filter((r, i) => i === 0 || i === runs.length - 1 || r.clipEnd - r.clipStart >= 2);
+  // Offsets within a frame or two of the primary are the primary; use its refined value.
+  for (const r of runs) if (Math.abs(r.offsetSec - primary.offsetSec) < 0.05) r.offsetSec = primary.offsetSec;
+  const merged: Segment[] = [];
+  for (const r of runs) {
+    const last = merged[merged.length - 1];
+    if (last && last.offsetSec === r.offsetSec && r.clipStart - last.clipEnd < 1) {
+      last.clipEnd = r.clipEnd;
+      last.hits += r.hits;
+    } else merged.push({ ...r });
+  }
+
+  const edits: Edit[] = [];
+  for (let i = 1; i < merged.length; i++) {
+    const a = merged[i - 1];
+    const b = merged[i];
+    const gap = b.clipStart - a.clipEnd;
+    if (gap >= 1) edits.push({ kind: "inserted", atClipSec: a.clipEnd, seconds: gap });
+    // Stream time skipped beyond the clip time that passed: that much of the original is missing.
+    const jump = Math.round((b.offsetSec - a.offsetSec) * 10) / 10;
+    if (jump >= 0.3) edits.push({ kind: "cut", atClipSec: b.clipStart, seconds: jump });
+    else if (jump <= -0.3) edits.push({ kind: "reordered", atClipSec: b.clipStart, seconds: -jump });
+  }
+  return { segments: merged, edits };
 }
 
 function recordHashes(rec: SecondRecord): Uint8Array[] {
@@ -181,15 +274,23 @@ function nearestFrame(frames: ClipFrame[], t: number): ClipFrame | null {
   return best && Math.abs(best.t - t) <= 0.13 ? best : null;
 }
 
-export function verdicts(clip: ClipPrint, records: SecondRecord[], offsetSec: number, audio: AudioMatch | null): SecondVerdict[] {
+// Scores stream seconds covered by clip time [fromClip, toClip) at one offset.
+export function verdicts(
+  clip: ClipPrint,
+  records: SecondRecord[],
+  offsetSec: number,
+  perClipSecond: number[] | null,
+  fromClip = 0,
+  toClip = clip.duration,
+): SecondVerdict[] {
   const bySecond = new Map(records.map((r) => [r.s, r]));
-  const first = Math.ceil(offsetSec);
-  const last = Math.floor(offsetSec + clip.duration) - 1;
+  const first = Math.ceil(offsetSec + fromClip);
+  const last = Math.floor(offsetSec + toClip) - 1;
   const out: SecondVerdict[] = [];
   for (let s = first; s <= last; s++) {
     const rec = bySecond.get(s);
     const clipSecond = Math.floor(s + 0.5 - offsetSec);
-    const audioHits = audio && clipSecond >= 0 && clipSecond < audio.perClipSecond.length ? audio.perClipSecond[clipSecond] : 0;
+    const audioHits = perClipSecond && clipSecond >= 0 && clipSecond < perClipSecond.length ? perClipSecond[clipSecond] : 0;
     const frame = nearestFrame(clip.frames, s + 0.5 - offsetSec);
     const hashes = rec ? recordHashes(rec) : [];
     const pictureBits = frame?.hash && hashes.length ? bestDistance(frame.hash, hashes) : null;
@@ -205,21 +306,33 @@ export function verdicts(clip: ClipPrint, records: SecondRecord[], offsetSec: nu
 }
 
 export function checkClip(clip: ClipPrint, streams: { streamId: Hex; minutes: MinuteFile[] }[]): CheckResult {
-  const audioHits: { streamId: Hex; audio: AudioMatch; records: SecondRecord[] }[] = [];
+  const audioHits: { streamId: Hex; audio: AudioMatch; records: SecondRecord[]; index: Map<number, number[]> }[] = [];
   for (const st of streams) {
-    const audio = matchAudio(clip.landmarks, buildAudioIndex(st.minutes), clip.duration);
-    if (audioIsMatch(audio)) audioHits.push({ streamId: st.streamId, audio: audio!, records: st.minutes.flatMap((m) => m.seconds) });
+    const index = buildAudioIndex(st.minutes);
+    const audio = matchAudio(clip.landmarks, index, clip.duration);
+    if (audioIsMatch(audio)) audioHits.push({ streamId: st.streamId, audio: audio!, records: st.minutes.flatMap((m) => m.seconds), index });
   }
   audioHits.sort((a, b) => b.audio.hits - a.audio.hits);
   if (audioHits.length) {
     const [best, ...rest] = audioHits;
+    const { segments, edits } = findSegments(clip.landmarks, best.index, clip.duration, best.audio);
+    const stitched = new Set(segments.map((g) => g.offsetSec)).size > 1;
+    // A stitched clip is scored segment by segment, each against its own part of the stream.
+    const seconds = stitched
+      ? segments.flatMap((g) =>
+          verdicts(clip, best.records, g.offsetSec, perSecondAt(clip.landmarks, best.index, clip.duration, Math.round(g.offsetSec * FRAMES_PER_SECOND)), g.clipStart, g.clipEnd),
+        )
+      : verdicts(clip, best.records, best.audio.offsetSec, best.audio.perClipSecond);
     return {
       status: "match",
       streamId: best.streamId,
-      offsetSec: best.audio.offsetSec,
+      // Where the clip starts in the stream; for a stitched clip that is its first piece.
+      offsetSec: segments[0]?.offsetSec ?? best.audio.offsetSec,
       audio: best.audio,
-      seconds: verdicts(clip, best.records, best.audio.offsetSec, best.audio),
+      seconds,
       alsoFound: rest.map((r) => ({ streamId: r.streamId, offsetSec: r.audio.offsetSec, hits: r.audio.hits })),
+      segments,
+      edits,
     };
   }
   let pic: { streamId: Hex; offsetSec: number; votes: number; records: SecondRecord[] } | null = null;
@@ -236,7 +349,9 @@ export function checkClip(clip: ClipPrint, streams: { streamId: Hex; minutes: Mi
       audio: null,
       seconds: verdicts(clip, pic.records, pic.offsetSec, null),
       alsoFound: [],
+      segments: [],
+      edits: [],
     };
   }
-  return { status: "no-match", streamId: null, offsetSec: null, audio: null, seconds: [], alsoFound: [] };
+  return { status: "no-match", streamId: null, offsetSec: null, audio: null, seconds: [], alsoFound: [], segments: [], edits: [] };
 }

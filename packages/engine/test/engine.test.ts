@@ -63,6 +63,28 @@ test("audio matcher finds an excerpt at the right offset and rejects another sig
   assert.equal(miss.status, "no-match");
 });
 
+test("a cut inside a clip is reported with its length, and an untouched clip reports none", () => {
+  const id = keccak256(toHex("s"));
+  const stream = noiseBurstSignal(120, 3);
+  const minutes = [0, 1].map((m) => buildMinute(id, m, minuteLandmarks(stream, m), new Map(), 60));
+  const at = (sec: number) => Math.round(sec * SAMPLE_RATE);
+  const honest = stream.slice(at(40), at(55));
+  const cut = new Float32Array(at(15));
+  cut.set(stream.slice(at(40), at(45)), 0);
+  cut.set(stream.slice(at(47), at(57)), at(5));
+
+  const h = checkClip({ duration: 15, landmarks: landmarks(honest), frames: [] }, [{ streamId: id, minutes }]);
+  assert.equal(h.status, "match");
+  assert.equal(h.edits.length, 0, JSON.stringify(h.edits));
+
+  const c = checkClip({ duration: 15, landmarks: landmarks(cut), frames: [] }, [{ streamId: id, minutes }]);
+  assert.equal(c.status, "match");
+  const cuts = c.edits.filter((e) => e.kind === "cut");
+  assert.equal(cuts.length, 1, JSON.stringify(c.edits));
+  assert.ok(Math.abs(cuts[0].seconds - 2) < 0.15, `cut length ${cuts[0].seconds}`);
+  assert.ok(Math.abs(cuts[0].atClipSec - 5) <= 1, `cut at ${cuts[0].atClipSec}`);
+});
+
 test("resampler keeps a tone below the new Nyquist and removes one above it", () => {
   const from = 48000;
   const tone = (hz: number) => Float32Array.from({ length: from }, (_, i) => Math.sin((2 * Math.PI * hz * i) / from));
