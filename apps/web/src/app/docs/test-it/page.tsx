@@ -20,7 +20,18 @@ export default function TestIt() {
         lead="Stamp your own footage, cut clips from it the way clippers do, and see what Clipright says. No install needed for the first path."
       />
 
-      <Section id="clips" title="In one minute: download a test clip">
+      <Section id="try" title="In one minute, with your own voice">
+        <p>
+          Open{" "}
+          <a className="underline decoration-line underline-offset-4" href="/try">
+            Try it
+          </a>
+          , say the sentence on screen and tap where to cut. Clipright stamps your recording on Monad, makes an untouched copy and a copy with that stretch
+          removed, and checks both. The untouched copy matches; the edited one is reported with how many seconds were cut out and where.
+        </p>
+      </Section>
+
+      <Section id="clips" title="Download a test clip">
         <p>
           A two-minute reference stream is stamped on the live registry. These clips were cut from it the way clippers do. Download one, drop it into{" "}
           <a className="underline decoration-line underline-offset-4" href="/check">

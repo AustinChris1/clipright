@@ -111,6 +111,8 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Contract** with 8 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs. A minute cannot be stamped before it could have started, so a stream stamps no faster than real time.
 - [x] **Wallet linking with Dynamic.** In Go live, a creator can connect any wallet through Dynamic (or an email wallet) and link it to their passkey key. A second contract, `CreatorLinks` at [`0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF`](https://testnet.monadscan.com/address/0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF), needs both signatures. Creators get a public page at `/creators/<wallet>`, and matching checks name the creator.
 - [x] **Gas protection.** The relayer refuses work past a per-hour open limit, a per-day stamp limit, a 240-minute stream cap, or a low-balance floor. The counts come from onchain events, so every server instance agrees.
+- [x] **Try it in a minute.** Say one sentence; it is stamped on Monad, a copy is cut where you tap, and both are checked. The untouched copy matches; the edited copy is reported as "1.0 s cut out at 7s".
+- [x] **Cut and splice detection.** A clip stitched from several moments of a stream is matched piece by piece, and the check names what was cut out or inserted. Gate clip F (2 s removed) is reported exactly.
 - [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).

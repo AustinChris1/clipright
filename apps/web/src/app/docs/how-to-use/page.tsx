@@ -12,6 +12,16 @@ export default function HowToUse() {
         lead="Two jobs, two pages. Checking needs nothing but a video file. Stamping needs a browser with a passkey."
       />
 
+      <Section id="try" title="Try it first">
+        <p>
+          The fastest way to see Clipright work is{" "}
+          <a className="underline decoration-line underline-offset-4" href="/try">
+            Try it
+          </a>
+          : record one sentence, and it stamps it, cuts a word out of a copy, and checks both.
+        </p>
+      </Section>
+
       <Section id="check" title="Check a clip">
         <Steps
           items={[
@@ -34,6 +44,7 @@ export default function HowToUse() {
             [<span key="b" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-match/55" />Light green</span>, "Sound matches; the picture could not be compared."],
             [<span key="c" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-warn/70" />Amber</span>, "Only the picture matches."],
             [<span key="d" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-stamp" />Red</span>, "Nothing matches this second."],
+            [<span key="e" className="inline-flex items-center gap-2"><span className="h-3 w-1 rounded-full bg-warn" />Amber bar</span>, "A cut: the clip jumps forward in the stream here."],
           ]}
         />
         <Callout title="Same footage in several streams?">
