@@ -2,7 +2,7 @@ import { stampRegistryAbi } from "@clipright/contracts/abi";
 import { recomputeRoot, secondProof, audioDigest, ZERO32, type MinuteFile } from "@clipright/engine";
 import type { Hex } from "viem";
 import { publicClient, REGISTRY } from "../config";
-import type { StampReceipt, StreamDetail, StreamMeta } from "../types";
+import type { StampReceipt, StreamDetail, StreamListing, StreamMeta } from "../types";
 import type { StampingKey } from "./passkey";
 
 async function json<T>(res: Response): Promise<T> {
@@ -35,8 +35,8 @@ export async function stampMinute(key: StampingKey, file: MinuteFile): Promise<S
   return json(await fetch(`/api/streams/${file.streamId}/minutes`, { method: "POST", body: JSON.stringify({ file, sig }) }));
 }
 
-export async function listStreams(): Promise<(StreamMeta & { stamps: number })[]> {
-  return (await json<{ streams: (StreamMeta & { stamps: number })[] }>(await fetch("/api/streams"))).streams;
+export async function listStreams(): Promise<StreamListing[]> {
+  return (await json<{ streams: StreamListing[] }>(await fetch("/api/streams"))).streams;
 }
 
 export async function getStream(id: Hex): Promise<StreamDetail & { minutes: MinuteFile[] }> {

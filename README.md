@@ -66,15 +66,15 @@ flowchart LR
 
 **Sound first.** Clips almost always keep the stream's own audio. Clipright uses the same idea as song-recognition apps: it picks out distinctive points in the sound so it can find a short excerpt inside hours of audio and say exactly where it starts. Captions, cropping and re-compression do not change the sound.
 
-**Picture second.** A vertical clip throws away about two thirds of a widescreen frame, which breaks normal image matching. So Clipright fingerprints the picture several ways in advance: the full frame, the centre vertical crop, and the facecam area. A clip's picture matches only if one of those prepared versions lines up.
+**Picture second.** A vertical clip throws away about two thirds of a widescreen frame, which breaks normal image matching. So Clipright fingerprints the picture two ways in advance: the full frame and the centre vertical crop. A clip's picture matches only if one of those prepared versions lines up.
 
 **One code per minute.** Each minute's fingerprints are combined into a single code (a Merkle root). Any one second can later be proven to be part of that minute without publishing the rest.
 
-**Signed by the creator.** The creator signs each minute with a key made from their passkey (Face ID, Touch ID or a security key). That key can sign stamps but cannot move money.
+**Signed by the creator.** The creator signs each minute with a key made from their passkey (Face ID, Touch ID or a security key). Clipright's relayer submits the transaction and pays the gas, so that key never holds funds: it can sign stamps but cannot move money. The contract rejects any stamp the creator's key did not sign.
 
 ## Why Monad
 
-- **Cheap enough to stamp every minute.** Monad charges for the gas limit you set, not what you use, so we keep the limit tight. At the documented minimum base fee, a 100,000-gas stamp costs 0.01 MON. A six-hour stream is 360 stamps, or 3.6 MON, roughly $0.10 at MON prices of $0.027 to $0.029 (early October 2026). If network fees rise above the minimum, it costs more.
+- **Cheap enough to stamp every minute.** Monad charges for the gas limit you set, not what you use, so the relayer sets the limit to the gas estimate plus 15%. A stamp used 80,381 gas in our EVM tests, so a limit near 100,000 gas costs about 0.01 MON at the documented minimum base fee. A six-hour stream is 360 stamps, or about 3.6 MON, roughly $0.10 at MON prices of $0.027 to $0.029 (early October 2026). If network fees rise above the minimum, it costs more.
 - **Final in under a second.** Monad blocks are 300ms and final in about 600ms, so a minute's stamp is settled long before anyone could cut, caption and post a clip from it.
 - **Public.** Anyone can check a clip against the record without asking Clipright, a platform, or the creator.
 
@@ -96,32 +96,64 @@ These limits are part of the design, not fine print:
 
 ## Status
 
-Work in progress for Monad Metropolis (submissions close 13 October 2026).
+Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 2026:
 
-- [ ] Day 1 gate: record a two-minute test stream, export a 15-second vertical crop, and confirm the sound match returns the correct second
-- [ ] Minute-stamp contract on Monad testnet
-- [ ] Recorder that fingerprints and stamps a live recording
-- [ ] Check page: drop a file, get a match or a miss
-- [ ] Indexer for stamps (Envio)
-- [ ] Passkey signing key (Mera), if passkey support works on the demo device
-- [ ] Demo video with the four test clips below
+- [x] **Matcher gate passes.** A synthetic two-minute stream and four clips (see below), run with `pnpm gate`.
+- [x] **Contract** with 7 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs.
+- [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
+- [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
+- [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
+- [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
+- [ ] **Monad testnet deployment.** Everything above was run on a local devnet; testnet is next.
+- [ ] **Envio.** Stream history is read through Envio HyperRPC when `ENVIO_API_TOKEN` is set, because Monad's public RPC limits log queries to 100 blocks (about 30 seconds). A HyperIndex indexer is not set up yet.
+- [ ] **Hosting and demo video.**
 
-**The demo test, in this order:**
+### The test clips
 
-1. Same sound, vertical crop, captions, re-encoded: must return the right second.
-2. Same picture, sound replaced: sound must miss; picture score shown either way.
-3. An unrelated video: must miss.
-4. A judge crops the stamped recording on their own machine and drops it in.
+| Clip | What was done to it | Result |
+|---|---|---|
+| A | 9:16 centre crop, burned-in captions, AAC re-encode | Matched at 47.297s (true start 47.3s) |
+| B | Same pictures, soundtrack replaced | Sound missed; pictures matched at 47.25s |
+| C | Unrelated video | No match |
+| D | Landscape, scaled to 480p, low bitrate | Matched at 88.602s (true start 88.6s) |
+
+The same four clips give the same results in Chrome through the Check page. Matching pictures were 14 to 40 bits apart out of 256, and the unrelated clip was never closer than 90.
 
 All demo footage is recorded by us. Clipright does not capture other people's streams.
 
+## Run it
+
+Needs Node 22 or newer and pnpm.
+
+```bash
+pnpm install
+pnpm gate                                   # matcher gate on a synthetic stream
+pnpm test                                   # engine and contract tests
+
+# local devnet
+cd packages/contracts && npx hardhat node   # terminal 1
+pnpm deploy:local                           # terminal 2, from packages/contracts
+cd apps/web && NEXT_PUBLIC_CHAIN_ID=31337 pnpm dev
+```
+
+The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_API_TOKEN` from `.env` at the repo root. The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
+
+## How the code is laid out
+
+- `packages/engine`: fingerprinting, matching and Merkle proofs in plain TypeScript. The same code runs in the browser and in Node.
+- `packages/contracts`: `StampRegistry.sol`, one stamp per stream minute, signed by the stream's key and relayed by anyone.
+- `apps/web`: Next.js app with the check page, live studio, stream records and the relayer API.
+
 ## Built with
 
-- [Monad](https://monad.xyz): public record of minute stamps
-- [audfprint](https://github.com/dpwe/audfprint): sound fingerprinting
-- [PDQ](https://github.com/facebook/ThreatExchange): picture fingerprinting
-- [Envio](https://envio.dev): indexing stamps for the check page
-- [Mera](https://github.com/category-labs/mera): passkey-derived signing key (planned)
+- [Monad](https://monad.xyz): the public record of minute stamps
+- [Mera](https://github.com/category-labs/mera): the stamping key, derived from a passkey with Clipright's own PRF salt
+- [Envio HyperRPC](https://docs.envio.dev): stream history beyond the public RPC's 100-block log limit
+- Sound fingerprinting in the style of Shazam and [audfprint](https://github.com/dpwe/audfprint), and a picture hash in the style of [PDQ](https://github.com/facebook/ThreatExchange), both written from scratch in TypeScript
+
+## The mark
+
+Two brackets closing on one bar: a clip locking onto the exact second it came from.
 
 ## Glossary
 

@@ -28,7 +28,7 @@ export function Checker() {
       const clip = await fingerprintClip(file, (stage, progress) => setPhase({ kind: "working", stage, progress }));
       setPhase({ kind: "working", stage: "Comparing with stamped streams", progress: 1 });
       const streams = await listStreams();
-      const details = await Promise.all(streams.map((s) => getStream(s.streamId)));
+      const details = await Promise.all(streams.filter((s) => s.fingerprints).map((s) => getStream(s.streamId)));
       const candidates = details.map((d) => ({ streamId: d.meta.streamId, minutes: d.minutes as MinuteFile[] }));
       const result = checkClip(clip, candidates);
       let chain: MinuteCheck[] = [];

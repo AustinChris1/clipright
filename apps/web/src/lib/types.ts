@@ -20,3 +20,13 @@ export interface StreamDetail {
   meta: StreamMeta;
   stamps: StampReceipt[];
 }
+
+export interface StreamListing {
+  streamId: Hex;
+  signer: Hex;
+  title: string;
+  openTx: Hex;
+  openedBlock: number;
+  stamps: number;
+  fingerprints: boolean;
+}

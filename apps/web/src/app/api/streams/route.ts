@@ -1,11 +1,10 @@
 import { isAddress, isHex, type Hex } from "viem";
 import { relayOpen } from "@/lib/server/relayer";
-import { listStreams, loadStamps, saveStream } from "@/lib/server/store";
+import { streamListings } from "@/lib/server/listings";
+import { saveStream } from "@/lib/server/store";
 
 export async function GET() {
-  const streams = await listStreams();
-  const withCounts = await Promise.all(streams.map(async (s) => ({ ...s, stamps: (await loadStamps(s.streamId)).length })));
-  return Response.json({ streams: withCounts });
+  return Response.json(await streamListings());
 }
 
 export async function POST(req: Request) {
