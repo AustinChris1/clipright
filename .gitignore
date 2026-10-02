@@ -11,3 +11,4 @@ packages/contracts/deployments/31337.json
 apps/web/*.md
 .vercel
 .env*
+!.env.example

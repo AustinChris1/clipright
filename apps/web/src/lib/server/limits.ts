@@ -1,4 +1,4 @@
-import { formatEther, parseEther } from "viem";
+import { BaseError, ContractFunctionRevertedError, formatEther, parseEther } from "viem";
 import { publicClient } from "../config";
 import { registryEvents } from "./chainEvents";
 import { relayerAddress } from "./relayer";
@@ -53,9 +53,17 @@ const REVERTS: Record<string, string> = {
   EmptyRoot: "The minute is empty.",
 };
 
+// viem keeps the decoded custom error on a nested cause, not in the message text.
+function revertName(e: unknown): string | undefined {
+  if (!(e instanceof BaseError)) return undefined;
+  const reverted = e.walk((x) => x instanceof ContractFunctionRevertedError);
+  return reverted instanceof ContractFunctionRevertedError ? reverted.data?.errorName : undefined;
+}
+
 export function revertMessage(e: unknown): { message: string; status: number } {
   const text = e instanceof Error ? e.message : String(e);
-  const name = Object.keys(REVERTS).find((k) => text.includes(k));
+  const decoded = revertName(e);
+  const name = decoded && decoded in REVERTS ? decoded : Object.keys(REVERTS).find((k) => text.includes(k));
   if (name) return { message: REVERTS[name], status: name === "AlreadyStamped" ? 409 : name === "TooEarly" ? 425 : 400 };
   return { message: text.split("\n")[0], status: 502 };
 }
