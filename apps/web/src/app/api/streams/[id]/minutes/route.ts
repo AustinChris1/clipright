@@ -40,8 +40,9 @@ export async function POST(req: Request, ctx: RouteContext<"/api/streams/[id]/mi
     functionName: "stampDigest",
     args: [id as Hex, file.minute, file.root],
   });
-  const recovered = await recoverMessageAddress({ message: { raw: digest }, signature: sig });
-  if (!signer || recovered.toLowerCase() !== signer.toLowerCase())
+  // A malformed signature throws during recovery; treat it like any other wrong signature.
+  const recovered = await recoverMessageAddress({ message: { raw: digest }, signature: sig }).catch(() => null);
+  if (!signer || !recovered || recovered.toLowerCase() !== signer.toLowerCase())
     return Response.json({ error: "signature is not from this stream's key" }, { status: 403 });
 
   const wait = await pacingWait(id as Hex, file.minute);
