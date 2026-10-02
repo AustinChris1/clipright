@@ -99,12 +99,13 @@ These limits are part of the design, not fine print:
 Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 2026:
 
 - [x] **Matcher gate passes.** A synthetic two-minute stream and four clips (see below), run with `pnpm gate`.
-- [x] **Contract** with 7 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs.
+- [x] **Contract** with 8 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs. A minute cannot be stamped before it could have started, so a stream stamps no faster than real time.
+- [x] **Gas protection.** The relayer refuses work past a per-hour open limit, a per-day stamp limit, a 240-minute stream cap, or a low-balance floor. The counts come from onchain events, so every server instance agrees.
 - [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
-- [x] **Live on Monad testnet** at [`0x23388E372E0799c93Ab3f2846079c4dfBC8b111D`](https://testnet.monadscan.com/address/0x23388E372E0799c93Ab3f2846079c4dfBC8b111D), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0x23388E372E0799c93Ab3f2846079c4dfBC8b111D). The four test clips pass against it in Chrome.
+- [x] **Live on Monad testnet** at [`0xba94D0Bf2FBAd5152F152455ca48583C512efe03`](https://testnet.monadscan.com/address/0xba94D0Bf2FBAd5152F152455ca48583C512efe03), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0xba94D0Bf2FBAd5152F152455ca48583C512efe03). The four test clips pass against it in Chrome.
 - [x] **Envio HyperSync** reads the registry's full event history for the streams list and the "stamped first" ordering. Monad's public RPC limits log queries to 100 blocks (about 30 seconds of history), so without it the app can only see recent streams.
 - [ ] **Hosting and demo video.**
 

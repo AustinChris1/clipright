@@ -13,6 +13,7 @@
     "@category-labs/mera": "^0.2.0",
     "@clipright/contracts": "workspace:^",
     "@clipright/engine": "workspace:^",
+    "@vercel/blob": "^2.8.0",
     "gsap": "^3.15.0",
     "lucide-react": "^1.49.0",
     "motion": "^13.5.0",

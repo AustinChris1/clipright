@@ -50,6 +50,7 @@ contract StampRegistryTest is Test {
     function test_SignatureIsBoundToMinuteAndRoot() public {
         bytes32 id = open();
         bytes memory sig = sign(signerKey, reg.stampDigest(id, 0, keccak256("r")));
+        vm.warp(block.timestamp + 60);
         vm.expectRevert(StampRegistry.BadSignature.selector);
         reg.stamp(id, 1, keccak256("r"), sig);
         vm.expectRevert(StampRegistry.BadSignature.selector);
@@ -61,6 +62,7 @@ contract StampRegistryTest is Test {
         bytes32 root = keccak256("r");
         reg.stamp(id, 0, root, sign(signerKey, reg.stampDigest(id, 0, root)));
         bytes32 root2 = keccak256("r2");
+        vm.warp(block.timestamp + 60);
         bytes memory sig2 = sign(signerKey, reg.stampDigest(id, 0, root2));
         vm.expectRevert(StampRegistry.AlreadyStamped.selector);
         reg.stamp(id, 0, root2, sig2);
@@ -71,6 +73,17 @@ contract StampRegistryTest is Test {
         reg.openStream(signer, "demo", sig);
         vm.expectRevert(StampRegistry.BadSignature.selector);
         reg.openStream(signer, "demo", sig);
+    }
+
+    function test_MinutesCannotBeStampedAheadOfTime() public {
+        bytes32 id = open();
+        bytes32 root = keccak256("r");
+        bytes memory sig = sign(signerKey, reg.stampDigest(id, 2, root));
+        vm.warp(block.timestamp + 119);
+        vm.expectRevert(StampRegistry.TooEarly.selector);
+        reg.stamp(id, 2, root, sig);
+        vm.warp(block.timestamp + 1);
+        reg.stamp(id, 2, root, sig);
     }
 
     function test_UnknownStreamAndEmptyRoot() public {

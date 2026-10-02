@@ -10,6 +10,10 @@ function wallet() {
   return createWalletClient({ account: privateKeyToAccount(key, { nonceManager }), chain, transport: http(RPC_URL) });
 }
 
+export function relayerAddress() {
+  return wallet().account.address;
+}
+
 // Monad bills the gas limit, not gas used; the estimate is taken just before sending, so 5% covers drift.
 async function send(functionName: "openStream" | "stamp", args: readonly unknown[]) {
   const client = wallet();

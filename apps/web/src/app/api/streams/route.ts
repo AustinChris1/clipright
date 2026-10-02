@@ -1,5 +1,6 @@
 import { isAddress, isHex, type Hex } from "viem";
 import { relayOpen } from "@/lib/server/relayer";
+import { openLimit, revertMessage } from "@/lib/server/limits";
 import { streamListings } from "@/lib/server/listings";
 import { saveStream } from "@/lib/server/store";
 
@@ -12,6 +13,8 @@ export async function POST(req: Request) {
   const { signer, title, sig } = (body ?? {}) as { signer?: string; title?: string; sig?: string };
   if (!signer || !isAddress(signer) || !sig || !isHex(sig) || typeof title !== "string" || title.length < 1 || title.length > 80)
     return Response.json({ error: "signer, title (1-80 chars) and sig are required" }, { status: 400 });
+  const limited = await openLimit();
+  if (limited) return Response.json({ error: limited }, { status: 429 });
   try {
     const { streamId, tx } = await relayOpen(signer as Hex, title, sig as Hex);
     const meta = { streamId, signer: signer as Hex, title, openedAt: Math.floor(Date.now() / 1000), openTx: tx };

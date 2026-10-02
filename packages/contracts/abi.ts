@@ -17,6 +17,11 @@ export const stampRegistryAbi = [
   },
   {
     "inputs": [],
+    "name": "TooEarly",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "UnknownStream",
     "type": "error"
   },

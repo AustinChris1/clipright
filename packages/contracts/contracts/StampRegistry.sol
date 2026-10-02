@@ -32,6 +32,7 @@ contract StampRegistry {
     error AlreadyStamped();
     error EmptyRoot();
     error BadSignature();
+    error TooEarly();
 
     function openDigest(address signer, uint256 nonce, string calldata meta) public view returns (bytes32) {
         return keccak256(abi.encode(block.chainid, address(this), "clipright.open", signer, nonce, keccak256(bytes(meta))));
@@ -54,6 +55,8 @@ contract StampRegistry {
         if (s.signer == address(0)) revert UnknownStream();
         if (root == bytes32(0)) revert EmptyRoot();
         if (stamps[streamId][minute].root != bytes32(0)) revert AlreadyStamped();
+        // A minute cannot be stamped before it could have started, so a stream stamps no faster than real time.
+        if (block.timestamp < uint256(s.openedAt) + uint256(minute) * 60) revert TooEarly();
         _requireSigner(stampDigest(streamId, minute, root), sig, s.signer);
         stamps[streamId][minute] = Stamp({root: root, at: uint64(block.timestamp)});
         unchecked {

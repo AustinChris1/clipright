@@ -19,10 +19,19 @@ const opened = await fetch(`${base}/api/streams`, { method: "POST", body: JSON.s
 if (!opened.streamId) throw new Error(`open failed: ${JSON.stringify(opened)}`);
 console.log(`opened ${opened.streamId} (tx ${opened.openTx})`);
 
+// The registry only accepts minute m once m minutes have passed, so a recording is stamped at real-time pace.
 for (const minute of await fingerprintFile(file, opened.streamId)) {
   const sig = await signer.signMessage({ message: { raw: await read<Hex>("stampDigest", [minute.streamId, minute.minute, minute.root]) } });
-  const res = await fetch(`${base}/api/streams/${minute.streamId}/minutes`, { method: "POST", body: JSON.stringify({ file: minute, sig }) });
-  const body = await res.json();
-  if (!res.ok) throw new Error(`minute ${minute.minute}: ${body.error}`);
-  console.log(`minute ${minute.minute}: ${minute.seconds.length}s stamped in block ${body.block} (tx ${body.tx})`);
+  for (;;) {
+    const res = await fetch(`${base}/api/streams/${minute.streamId}/minutes`, { method: "POST", body: JSON.stringify({ file: minute, sig }) });
+    const body = await res.json();
+    if (res.status === 425) {
+      console.log(`minute ${minute.minute}: waiting for real time to catch up`);
+      await new Promise((r) => setTimeout(r, 10_000));
+      continue;
+    }
+    if (!res.ok) throw new Error(`minute ${minute.minute}: ${body.error}`);
+    console.log(`minute ${minute.minute}: ${minute.seconds.length}s stamped in block ${body.block} (tx ${body.tx})`);
+    break;
+  }
 }
