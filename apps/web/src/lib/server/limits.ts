@@ -1,5 +1,7 @@
 import { formatEther, parseEther } from "viem";
-import { publicClient } from "../config";
+import { stampRegistryAbi } from "@clipright/contracts/abi";
+import type { Hex } from "viem";
+import { publicClient, REGISTRY } from "../config";
 import { registryEvents } from "./chainEvents";
 import { relayerAddress } from "./relayer";
 
@@ -43,6 +45,15 @@ export async function stampLimit(minute: number): Promise<string | null> {
   if (stamped.filter((s) => s.block >= from).length >= STAMPS_PER_DAY)
     return `This demo relays at most ${STAMPS_PER_DAY} stamps a day, and today's are used up.`;
   return null;
+}
+
+// Mirrors the registry's TooEarly rule so the relayer never pays to learn it.
+export async function pacingWait(streamId: Hex, minute: number): Promise<number> {
+  const [[, openedAt], block] = await Promise.all([
+    publicClient.readContract({ address: REGISTRY, abi: stampRegistryAbi, functionName: "streams", args: [streamId] }),
+    publicClient.getBlock(),
+  ]);
+  return Math.max(0, Number(openedAt) + minute * 60 - Number(block.timestamp));
 }
 
 const REVERTS: Record<string, string> = {

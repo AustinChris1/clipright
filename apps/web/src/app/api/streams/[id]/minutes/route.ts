@@ -2,7 +2,7 @@ import { stampRegistryAbi } from "@clipright/contracts/abi";
 import { recomputeRoot, type MinuteFile } from "@clipright/engine";
 import { isHex, recoverMessageAddress, type Hex } from "viem";
 import { publicClient, REGISTRY } from "@/lib/config";
-import { revertMessage, stampLimit } from "@/lib/server/limits";
+import { pacingWait, revertMessage, stampLimit } from "@/lib/server/limits";
 import { onchainSigner, relayStamp } from "@/lib/server/relayer";
 import { getStream, saveMinute, saveReceipt } from "@/lib/server/store";
 
@@ -44,6 +44,9 @@ export async function POST(req: Request, ctx: RouteContext<"/api/streams/[id]/mi
   if (!signer || recovered.toLowerCase() !== signer.toLowerCase())
     return Response.json({ error: "signature is not from this stream's key" }, { status: 403 });
 
+  const wait = await pacingWait(id as Hex, file.minute);
+  if (wait > 0)
+    return Response.json({ error: `Minute ${file.minute} has not happened yet; try again in ${wait}s.`, retryAfter: wait }, { status: 425 });
   const limited = await stampLimit(file.minute);
   if (limited) return Response.json({ error: limited }, { status: 429 });
 

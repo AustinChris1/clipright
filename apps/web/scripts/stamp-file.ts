@@ -26,8 +26,9 @@ for (const minute of await fingerprintFile(file, opened.streamId)) {
     const res = await fetch(`${base}/api/streams/${minute.streamId}/minutes`, { method: "POST", body: JSON.stringify({ file: minute, sig }) });
     const body = await res.json();
     if (res.status === 425) {
-      console.log(`minute ${minute.minute}: waiting for real time to catch up`);
-      await new Promise((r) => setTimeout(r, 10_000));
+      const wait = Math.max(2, Number(body.retryAfter ?? 10) + 1);
+      console.log(`minute ${minute.minute}: waiting ${wait}s for real time to catch up`);
+      await new Promise((r) => setTimeout(r, wait * 1000));
       continue;
     }
     if (!res.ok) throw new Error(`minute ${minute.minute}: ${body.error}`);
