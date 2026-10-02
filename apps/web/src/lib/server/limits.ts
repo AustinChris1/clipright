@@ -1,4 +1,4 @@
-import { BaseError, ContractFunctionRevertedError, formatEther, parseEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { publicClient } from "../config";
 import { registryEvents } from "./chainEvents";
 import { relayerAddress } from "./relayer";
@@ -53,11 +53,14 @@ const REVERTS: Record<string, string> = {
   EmptyRoot: "The minute is empty.",
 };
 
-// viem keeps the decoded custom error on a nested cause, not in the message text.
+// viem keeps the decoded custom error on a nested cause; read it without instanceof, which fails across bundled copies of viem.
 function revertName(e: unknown): string | undefined {
-  if (!(e instanceof BaseError)) return undefined;
-  const reverted = e.walk((x) => x instanceof ContractFunctionRevertedError);
-  return reverted instanceof ContractFunctionRevertedError ? reverted.data?.errorName : undefined;
+  let x = e as { cause?: unknown; data?: { errorName?: unknown } } | undefined;
+  for (let i = 0; x && i < 10; i++) {
+    if (typeof x.data?.errorName === "string") return x.data.errorName;
+    x = x.cause as typeof x;
+  }
+  return undefined;
 }
 
 export function revertMessage(e: unknown): { message: string; status: number } {
