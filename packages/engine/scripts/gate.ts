@@ -64,6 +64,12 @@ async function makeFixtures() {
     ["clipC.mp4", ["-f", "lavfi", "-i", "testsrc2=s=720x1280:rate=30", "-i", f("other.wav"), "-t", "15", "-c:v", "libx264", "-crf", "30", "-c:a", "aac", "-b:a", "96k"]],
     ["clipD.mp4", ["-ss", "88.6", "-t", "12", "-i", f("stream.mp4"), "-vf", "scale=854:480", "-c:v", "libx264", "-crf", "32", "-c:a", "aac", "-b:a", "64k"]],
   ];
+  clips.push(["clipE.mp4", ["-ss", "47.3", "-t", "15", "-i", f("stream.mp4"), "-i", f("clipC.mp4"), "-filter_complex",
+    "[0:v]crop=ih*9/16:ih,scale=720:1280,setsar=1,fps=30,split=2[va][vb];[va]trim=0:5,setpts=PTS-STARTPTS[v1];[vb]trim=10:15,setpts=PTS-STARTPTS[v3];" +
+    "[1:v]scale=720:1280,setsar=1,fps=30,trim=0:5,setpts=PTS-STARTPTS[v2];" +
+    "[0:a]aresample=48000,asplit=2[aa][ab];[aa]atrim=0:5,asetpts=PTS-STARTPTS[a1];[ab]atrim=10:15,asetpts=PTS-STARTPTS[a3];[1:a]aresample=48000,atrim=0:5,asetpts=PTS-STARTPTS[a2];" +
+    "[v1][a1][v2][a2][v3][a3]concat=n=3:v=1:a=1[v][a]",
+    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "28", "-c:a", "aac", "-b:a", "96k"]]);
   for (const [name, args] of clips) if (!existsSync(f(name))) await ffmpeg(["-y", ...args, f(name)]);
 }
 
@@ -72,6 +78,7 @@ const expected: Record<string, { status: string; offset?: number }> = {
   "clipB.mp4": { status: "picture-only", offset: 47.3 },
   "clipC.mp4": { status: "no-match" },
   "clipD.mp4": { status: "match", offset: 88.6 },
+  "clipE.mp4": { status: "spliced", offset: 47.3 },
 };
 
 async function main() {
@@ -100,7 +107,11 @@ async function main() {
     const exp = expected[name];
     let pass: boolean;
     if (exp.status === "match") pass = r.status === "match" && Math.abs((r.offsetSec ?? 0) - exp.offset!) < 0.05;
-    else if (exp.status === "picture-only") pass = r.status === "picture-only" && Math.abs((r.offsetSec ?? 0) - exp.offset!) <= 0.25;
+    else if (exp.status === "spliced") {
+      const red = r.seconds.filter((x) => !x.audio && !x.picture).map((x) => x.s);
+      console.log(`  unmatched seconds: ${red.join(",") || "none"}`);
+      pass = r.status === "match" && Math.abs((r.offsetSec ?? 0) - exp.offset!) < 0.05 && red.length >= 4 && red.every((x) => x >= 52 && x <= 57);
+    } else if (exp.status === "picture-only") pass = r.status === "picture-only" && Math.abs((r.offsetSec ?? 0) - exp.offset!) <= 0.25;
     else pass = r.status === "no-match";
     console.log(`  ${pass ? "PASS" : "FAIL"} (expected ${exp.status}${exp.offset ? ` at ${exp.offset}s` : ""})`);
     if (!pass) failed++;

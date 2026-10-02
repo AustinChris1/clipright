@@ -10,6 +10,7 @@ const links = [
   { href: "/check", label: "Check a clip" },
   { href: "/live", label: "Go live" },
   { href: "/streams", label: "Streams" },
+  { href: "/docs", label: "Docs" },
 ];
 
 function ThemeToggle() {

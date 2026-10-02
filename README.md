@@ -107,7 +107,7 @@ These limits are part of the design, not fine print:
 
 Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 2026:
 
-- [x] **Matcher gate passes.** A synthetic two-minute stream and four clips (see below), run with `pnpm gate`.
+- [x] **Matcher gate passes.** A synthetic two-minute stream and five clips (see below), run with `pnpm gate`.
 - [x] **Contract** with 8 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs. A minute cannot be stamped before it could have started, so a stream stamps no faster than real time.
 - [x] **Gas protection.** The relayer refuses work past a per-hour open limit, a per-day stamp limit, a 240-minute stream cap, or a low-balance floor. The counts come from onchain events, so every server instance agrees.
 - [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
@@ -127,8 +127,9 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 | B | Same pictures, soundtrack replaced | Sound missed; pictures matched at 47.25s |
 | C | Unrelated video | No match |
 | D | Landscape, scaled to 480p, low bitrate | Matched at 88.602s (true start 88.6s) |
+| E | 5 seconds of unrelated footage spliced into the middle | Matched at 47.297s; the 5 spliced seconds (52 to 56) flagged as not matching |
 
-The same four clips give the same results in Chrome through the Check page. Matching pictures were 14 to 40 bits apart out of 256, and the unrelated clip was never closer than 90.
+Clips A to D give the same results in Chrome through the Check page. Matching pictures were 14 to 40 bits apart out of 256, and the unrelated clip was never closer than 90.
 
 All demo footage is recorded by us. Clipright does not capture other people's streams.
 
@@ -156,6 +157,8 @@ node packages/engine/scripts/make-clips.ts clipright-recording.webm 40   # start
 This writes `clips/vertical.mp4` (9:16 crop, captions, re-encoded), `clips/sound-swapped.mp4` (same pictures, generated music instead of the stream's sound) and `clips/unrelated.mp4`. Drop each into the Check page.
 
 The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY` from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
+
+Full docs, including use cases and the contract and API reference, are at [clipright.vercel.app/docs](https://clipright.vercel.app/docs).
 
 ## How the code is laid out
 
