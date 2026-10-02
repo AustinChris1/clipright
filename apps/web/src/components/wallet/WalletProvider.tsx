@@ -3,6 +3,8 @@
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { DynamicContextProvider, mergeNetworks } from "@dynamic-labs/sdk-react-core";
 import type { ReactNode } from "react";
+import type { StampingKey } from "@/lib/client/passkey";
+import { LinkWallet } from "./LinkWallet";
 import { chain, CHAIN_ID, DYNAMIC_ENV_ID, EXPLORER, RPC_URL } from "@/lib/config";
 
 // Monad Testnet may not be enabled in the dashboard, so the SDK is told about it directly.
@@ -18,19 +20,28 @@ const monad = {
   vanityName: chain.name,
 };
 
-export const walletLinkingEnabled = Boolean(DYNAMIC_ENV_ID);
-
-export function WalletProvider({ children }: { children: ReactNode }) {
-  if (!walletLinkingEnabled) return <>{children}</>;
+function WalletProvider({ children }: { children: ReactNode }) {
+  if (!DYNAMIC_ENV_ID) return <>{children}</>;
   return (
     <DynamicContextProvider
       settings={{
         environmentId: DYNAMIC_ENV_ID,
+        // Only the wallet's signature on the link is needed, so skip Dynamic accounts and their email prompts.
+        initialAuthenticationMode: "connect-only",
         walletConnectors: [EthereumWalletConnectors],
         overrides: { evmNetworks: (networks) => mergeNetworks([monad], networks) },
       }}
     >
       {children}
     </DynamicContextProvider>
+  );
+}
+
+// Loaded only in the browser (see WalletCard): the Dynamic SDK reads window while it loads.
+export default function WalletLinkCard({ stampingKey }: { stampingKey: StampingKey | null }) {
+  return (
+    <WalletProvider>
+      <LinkWallet stampingKey={stampingKey} />
+    </WalletProvider>
   );
 }

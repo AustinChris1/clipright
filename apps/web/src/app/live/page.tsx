@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Studio } from "@/components/live/Studio";
-import { WalletProvider } from "@/components/wallet/WalletProvider";
 
 export const metadata: Metadata = { title: "Go live | Clipright" };
 
@@ -14,9 +13,7 @@ export default function LivePage() {
         never leaves your device.
       </p>
       <div className="mt-10">
-        <WalletProvider>
-          <Studio />
-        </WalletProvider>
+        <Studio />
       </div>
     </section>
   );
