@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Wordmark } from "./Mark";
 
 const links = [
+  { href: "/try", label: "Try it" },
   { href: "/check", label: "Check a clip" },
   { href: "/live", label: "Go live" },
   { href: "/streams", label: "Streams" },

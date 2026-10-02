@@ -2,11 +2,16 @@
 
 import type { CheckResult } from "@clipright/engine";
 import type { Hex } from "viem";
-import { BadgeCheck, CircleSlash, ExternalLink, ImageIcon, Link2 } from "lucide-react";
+import { BadgeCheck, CircleSlash, ExternalLink, ImageIcon, Link2, Scissors } from "lucide-react";
 import { motion } from "motion/react";
 import type { MinuteCheck, OnRecord } from "@/lib/client/api";
 import { txUrl } from "@/lib/config";
 import type { StreamMeta } from "@/lib/types";
+
+function clipTime(sec: number) {
+  const m = Math.floor(sec / 60);
+  return `${m}:${String(Math.floor(sec - m * 60)).padStart(2, "0")}`;
+}
 
 export function timecode(sec: number) {
   const m = Math.floor(sec / 60);
@@ -15,6 +20,7 @@ export function timecode(sec: number) {
 }
 
 const tone = {
+  edited: { label: "Edited from a stamped stream", icon: Scissors, cls: "text-warn", ring: "border-warn/40 bg-warn/5" },
   match: { label: "Match", icon: BadgeCheck, cls: "text-match", ring: "border-match/40 bg-match/5" },
   "picture-only": { label: "Pictures match, sound does not", icon: ImageIcon, cls: "text-warn", ring: "border-warn/40 bg-warn/5" },
   "no-match": { label: "No match", icon: CircleSlash, cls: "text-stamp", ring: "border-stamp/40 bg-stamp/5" },
@@ -43,7 +49,8 @@ export function Verdict({
   minutesChecked: number;
   owner: Hex | null;
 }) {
-  const t = tone[result.status];
+  const edited = result.status === "match" && result.edits.length > 0;
+  const t = edited ? tone.edited : tone[result.status];
   const Icon = t.icon;
   const soundOk = result.seconds.filter((s) => s.audio).length;
   const pictureOk = result.seconds.filter((s) => s.picture).length;
@@ -90,13 +97,42 @@ export function Verdict({
               </p>
             )}
             <p className="mt-3 font-mono text-lg tabular">
-              {timecode(result.offsetSec!)} <span className="text-muted">to</span> {timecode(result.offsetSec! + duration)}
+              {timecode(result.offsetSec!)} <span className="text-muted">to</span>{" "}
+              {timecode(result.segments.length ? Math.max(...result.segments.map((g) => g.offsetSec + g.clipEnd)) : result.offsetSec! + duration)}
               <span className="ml-2 text-sm text-muted">into the stream</span>
             </p>
             {result.status === "picture-only" && (
               <p className="mt-3 max-w-xl text-muted">
                 The pictures line up with this stream, but the sound does not. The soundtrack was replaced or altered, so the exact second is approximate.
               </p>
+            )}
+            {edited && (
+              <ul className="mt-4 space-y-2">
+                {result.edits.map((e, i) => (
+                  <li key={i} className="flex items-start gap-2 rounded-2xl border border-warn/40 bg-card px-4 py-3 text-sm">
+                    <Scissors size={16} className="mt-0.5 shrink-0 text-warn" />
+                    <span>
+                      {e.kind === "cut" && (
+                        <>
+                          <strong>{e.seconds.toFixed(1)} s of the original was cut out</strong> at {clipTime(e.atClipSec)} in the clip. The words around it were
+                          said, just not next to each other.
+                        </>
+                      )}
+                      {e.kind === "inserted" && (
+                        <>
+                          <strong>{clipTime(e.atClipSec)} to {clipTime(e.atClipSec + e.seconds)} of the clip is not from the stream.</strong> Something else
+                          was put in.
+                        </>
+                      )}
+                      {e.kind === "reordered" && (
+                        <>
+                          <strong>At {clipTime(e.atClipSec)} the clip jumps back {e.seconds.toFixed(1)} s</strong> in the stream, so parts are out of order.
+                        </>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
             <SecondStrip result={result} />
             <dl className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -207,15 +243,18 @@ function SecondStrip({ result }: { result: CheckResult }) {
         {result.seconds.map((s, i) => {
           const both = s.audio && s.picture;
           const cls = both ? "bg-match" : s.audio ? "bg-match/55" : s.picture ? "bg-warn/70" : "bg-stamp";
+          const jump = i > 0 && s.s !== result.seconds[i - 1].s + 1;
           return (
             <motion.div
-              key={s.s}
+              key={`${s.s}-${i}`}
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ delay: i * 0.03, type: "spring", stiffness: 300, damping: 22 }}
               title={`second ${s.s}: sound ${s.audioHits} hits, picture ${s.pictureBits ?? "n/a"} bits apart`}
-              className={`h-14 flex-1 origin-bottom rounded-md ${cls}`}
-            />
+              className={`relative h-14 flex-1 origin-bottom rounded-md ${cls} ${jump ? "ml-3" : ""}`}
+            >
+              {jump && <span title="cut here" className="absolute -left-2.5 top-0 h-full w-1 rounded-full bg-warn" />}
+            </motion.div>
           );
         })}
       </div>
