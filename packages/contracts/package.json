@@ -7,7 +7,9 @@
     "build": "hardhat build && node scripts/export-abi.ts",
     "test": "hardhat test",
     "deploy:testnet": "hardhat run scripts/deploy.ts --network monadTestnet",
-    "deploy:local": "hardhat run scripts/deploy.ts --network localhost"
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy-links:testnet": "hardhat run scripts/deploy-links.ts --network monadTestnet",
+    "deploy-links:local": "hardhat run scripts/deploy-links.ts --network localhost"
   },
   "devDependencies": {
     "@clipright/engine": "workspace:^",

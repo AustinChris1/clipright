@@ -29,4 +29,5 @@ export interface StreamListing {
   openedBlock: number;
   stamps: number;
   fingerprints: boolean;
+  owner: Hex | null;
 }

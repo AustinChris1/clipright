@@ -15,6 +15,7 @@ export async function streamListings(): Promise<{ streams: StreamListing[]; sour
       openedBlock: o.block,
       stamps: events.stamped.filter((s) => s.streamId === o.streamId).length,
       fingerprints: haveFiles.has(o.streamId.toLowerCase()),
+      owner: events.ownerOf.get(o.signer.toLowerCase()) ?? null,
     }))
     .sort((a, b) => b.openedBlock - a.openedBlock);
   return { streams, source: events.source };

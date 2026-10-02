@@ -1,11 +1,18 @@
-import { stampRegistryAbi } from "@clipright/contracts/abi";
+import { creatorLinksAbi, stampRegistryAbi } from "@clipright/contracts/abi";
 import { createPublicClient, http, parseEventLogs, type Hex, type Log } from "viem";
-import { chain, CHAIN_ID, REGISTRY, RPC_URL } from "../config";
+import { chain, CHAIN_ID, LINKS, REGISTRY, RPC_URL } from "../config";
 
 export interface OpenedEvent {
   streamId: Hex;
   signer: Hex;
   title: string;
+  block: number;
+  tx: Hex;
+}
+
+export interface LinkedEvent {
+  signer: Hex;
+  owner: Hex;
   block: number;
   tx: Hex;
 }
@@ -26,7 +33,9 @@ const START = BigInt(process.env.NEXT_PUBLIC_REGISTRY_START_BLOCK || 0);
 const HYPERSYNC_TOKEN = process.env.ENVIO_HYPERSYNC_KEY || process.env.ENVIO_API_TOKEN;
 const LOG_FIELDS = ["block_number", "log_index", "transaction_hash", "address", "data", "topic0", "topic1", "topic2", "topic3"];
 
-const state = { scannedTo: START - 1n, opened: [] as OpenedEvent[], stamped: [] as StampedEvent[], at: 0, source: "public-rpc" as Source };
+const ADDRESSES = [REGISTRY, LINKS].filter(Boolean);
+const EVENTS_ABI = [...stampRegistryAbi, ...creatorLinksAbi];
+const state = { scannedTo: START - 1n, opened: [] as OpenedEvent[], stamped: [] as StampedEvent[], linked: [] as LinkedEvent[], at: 0, source: "public-rpc" as Source };
 let inflight: Promise<void> | null = null;
 
 function useHyperSync() {
@@ -52,7 +61,7 @@ async function hyperSyncLogs(from: bigint): Promise<{ logs: Log[]; to: bigint }>
     const res = await fetch(`https://${CHAIN_ID}.hypersync.xyz/query`, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${HYPERSYNC_TOKEN}` },
-      body: JSON.stringify({ from_block: next, logs: [{ address: [REGISTRY] }], field_selection: { log: LOG_FIELDS } }),
+      body: JSON.stringify({ from_block: next, logs: [{ address: ADDRESSES }], field_selection: { log: LOG_FIELDS } }),
     });
     if (!res.ok) throw new Error(`HyperSync ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const body = (await res.json()) as { data: unknown; next_block: number; archive_height: number };
@@ -80,7 +89,7 @@ async function publicLogs(from: bigint): Promise<{ logs: Log[]; to: bigint }> {
   const logs: Log[] = [];
   while (from <= head) {
     const to = from + span - 1n > head ? head : from + span - 1n;
-    logs.push(...(await client.getLogs({ address: REGISTRY, fromBlock: from, toBlock: to })));
+    logs.push(...(await client.getLogs({ address: ADDRESSES, fromBlock: from, toBlock: to })));
     from = to + 1n;
   }
   return { logs, to: head };
@@ -89,10 +98,11 @@ async function publicLogs(from: bigint): Promise<{ logs: Log[]; to: bigint }> {
 async function scan() {
   const source: Source = useHyperSync() ? "envio-hypersync" : "public-rpc";
   const { logs, to } = source === "envio-hypersync" ? await hyperSyncLogs(state.scannedTo + 1n) : await publicLogs(state.scannedTo + 1n);
-  for (const l of parseEventLogs({ abi: stampRegistryAbi, logs })) {
+  for (const l of parseEventLogs({ abi: EVENTS_ABI, logs })) {
     const base = { block: Number(l.blockNumber), tx: l.transactionHash as Hex };
     if (l.eventName === "StreamOpened") state.opened.push({ ...base, streamId: l.args.streamId, signer: l.args.signer, title: l.args.meta });
     if (l.eventName === "Stamped") state.stamped.push({ ...base, streamId: l.args.streamId, minute: l.args.minute, root: l.args.root });
+    if (l.eventName === "Linked") state.linked.push({ ...base, signer: l.args.signer, owner: l.args.owner });
   }
   if (to > state.scannedTo) state.scannedTo = to;
   state.at = Date.now();
@@ -100,10 +110,13 @@ async function scan() {
 }
 
 export async function registryEvents() {
-  if (!REGISTRY) return { opened: [], stamped: [], source: "none", scannedTo: 0 };
+  if (!REGISTRY) return { opened: [], stamped: [], linked: [], source: "none", scannedTo: 0, ownerOf: new Map<string, Hex>() };
   if (Date.now() - state.at > 3_000) {
     inflight ??= scan().finally(() => (inflight = null));
     await inflight;
   }
-  return { opened: state.opened, stamped: state.stamped, source: state.source, scannedTo: Number(state.scannedTo) };
+  // The latest link wins, so a creator can move a stamping key to a new wallet.
+  const ownerOf = new Map<string, Hex>();
+  for (const l of [...state.linked].sort((a, b) => a.block - b.block)) ownerOf.set(l.signer.toLowerCase(), l.owner);
+  return { opened: state.opened, stamped: state.stamped, linked: state.linked, source: state.source, scannedTo: Number(state.scannedTo), ownerOf };
 }

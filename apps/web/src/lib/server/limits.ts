@@ -10,6 +10,7 @@ const OPENS_PER_HOUR = Number(process.env.LIMIT_OPENS_PER_HOUR || 20);
 const STAMPS_PER_DAY = Number(process.env.LIMIT_STAMPS_PER_DAY || 300);
 const MAX_MINUTES = Number(process.env.LIMIT_MAX_MINUTES || 240);
 const MIN_BALANCE = parseEther(process.env.LIMIT_MIN_BALANCE_MON || "0.2");
+const LINKS_PER_HOUR = Number(process.env.LIMIT_LINKS_PER_HOUR || 30);
 
 let pace: { secPerBlock: number; at: number } | null = null;
 
@@ -52,6 +53,14 @@ export async function stampLimit(minute: number): Promise<string | null> {
   return null;
 }
 
+export async function linkLimit(): Promise<string | null> {
+  const gas = await gasProblem();
+  if (gas) return gas;
+  const [{ linked }, { from }] = await Promise.all([registryEvents(), blocksIn(3600)]);
+  if (linked.filter((l) => l.block >= from).length >= LINKS_PER_HOUR) return `This demo links at most ${LINKS_PER_HOUR} wallets an hour. Try again shortly.`;
+  return null;
+}
+
 // Mirrors the registry's TooEarly rule so the relayer never pays to learn it.
 export async function pacingWait(streamId: Hex, minute: number): Promise<number> {
   const [[, openedAt], block] = await Promise.all([
@@ -68,6 +77,9 @@ const REVERTS: Record<string, string> = {
   BadSignature: "The signature is not from this stream's key.",
   UnknownStream: "This stream is not on the registry.",
   EmptyRoot: "The minute is empty.",
+  BadSignerSignature: "The stamping key did not sign this link.",
+  BadOwnerSignature: "The wallet did not sign this link.",
+  ZeroOwner: "No wallet was given.",
 };
 
 // viem keeps the decoded custom error on a nested cause; read it without instanceof, which fails across bundled copies of viem.
