@@ -12,3 +12,5 @@ apps/web/*.md
 .vercel
 .env*
 !.env.example
+clips/
+DEMO_SCRIPT.md

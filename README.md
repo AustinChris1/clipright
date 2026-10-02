@@ -147,6 +147,14 @@ pnpm deploy:local                           # terminal 2, from packages/contract
 cd apps/web && NEXT_PUBLIC_CHAIN_ID=31337 pnpm dev
 ```
 
+**Try to fool it yourself.** Download a recording from the Go live page, then cut test clips from it:
+
+```bash
+node packages/engine/scripts/make-clips.ts clipright-recording.webm 40   # start 40s in
+```
+
+This writes `clips/vertical.mp4` (9:16 crop, captions, re-encoded), `clips/sound-swapped.mp4` (same pictures, generated music instead of the stream's sound) and `clips/unrelated.mp4`. Drop each into the Check page.
+
 The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY` from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
 
 ## How the code is laid out
