@@ -114,7 +114,7 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
-- [x] **Live on Monad testnet** at [`0xba94D0Bf2FBAd5152F152455ca48583C512efe03`](https://testnet.monadscan.com/address/0xba94D0Bf2FBAd5152F152455ca48583C512efe03), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0xba94D0Bf2FBAd5152F152455ca48583C512efe03). The four test clips pass against it in Chrome.
+- [x] **Live on Monad testnet** at [`0x570fA5455A67Fa925d130c29176d70D85cc202e0`](https://testnet.monadscan.com/address/0x570fA5455A67Fa925d130c29176d70D85cc202e0), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0x570fA5455A67Fa925d130c29176d70D85cc202e0). The four test clips pass against it in Chrome.
 - [x] **Envio HyperSync** reads the registry's full event history for the streams list and the "stamped first" ordering. Monad's public RPC limits log queries to 100 blocks (about 30 seconds of history), so without it the app can only see recent streams.
 - [x] **Hosted on Vercel** at [clipright.vercel.app](https://clipright.vercel.app). Every push to `main` deploys. Fingerprint files live in Vercel Blob. The four test clips pass against the live site.
 - [ ] **Demo video.**
