@@ -27,6 +27,8 @@ export function Verdict({
   duration,
   onRecord,
   hasVideo,
+  streamsChecked,
+  minutesChecked,
 }: {
   result: CheckResult;
   stream: StreamMeta | null;
@@ -35,6 +37,8 @@ export function Verdict({
   duration: number;
   onRecord: OnRecord[];
   hasVideo: boolean;
+  streamsChecked: number;
+  minutesChecked: number;
 }) {
   const t = tone[result.status];
   const Icon = t.icon;
@@ -53,8 +57,20 @@ export function Verdict({
           <>
             <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">This clip does not line up with any stamped stream.</h2>
             <p className="mt-3 max-w-xl text-muted">
-              Neither its sound nor its pictures match a stamped minute. It may come from a stream that was never stamped, or it may not be what it claims to be.
+              Checked against {streamsChecked} stamped stream{streamsChecked === 1 ? "" : "s"} ({minutesChecked} minute{minutesChecked === 1 ? "" : "s"} on record). Neither
+              its sound nor its pictures line up with any of them.
             </p>
+            <div className="mt-6 max-w-xl rounded-2xl border border-line bg-card p-4 text-sm">
+              <p className="font-medium">What this means</p>
+              <p className="mt-1 text-muted">
+                Clipright only recognises footage from streams that were stamped while they happened. A clip from a TV show, a film, or any stream nobody
+                stamped will always come back as no match. That is the honest answer, not a failure. It can also mean the clip was edited away from what was
+                stamped.
+              </p>
+              <a href="/docs/test-it#clips" className="mt-2 inline-block text-ink underline decoration-line underline-offset-4">
+                Try a clip that is on record
+              </a>
+            </div>
           </>
         ) : (
           <>

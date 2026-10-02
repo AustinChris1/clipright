@@ -13,7 +13,7 @@ import { Verdict } from "./Verdict";
 type Phase =
   | { kind: "idle" }
   | { kind: "working"; stage: string; progress: number }
-  | { kind: "done"; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean }
+  | { kind: "done"; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number }
   | { kind: "error"; message: string };
 
 export function Checker() {
@@ -72,6 +72,8 @@ export function Checker() {
         duration: clip.duration,
         onRecord,
         hasVideo: clip.frames.length > 0,
+        streamsChecked: details.length,
+        minutesChecked: details.reduce((n, d) => n + d.minutes.length, 0),
       });
     } catch (e) {
       setPhase({ kind: "error", message: e instanceof Error ? e.message : "Something went wrong" });
@@ -155,7 +157,7 @@ export function Checker() {
                 <RotateCcw size={14} /> Check another
               </button>
             </div>
-            <Verdict result={phase.result} stream={phase.stream} chain={phase.chain} clipUrl={phase.clipUrl} duration={phase.duration} onRecord={phase.onRecord} hasVideo={phase.hasVideo} />
+            <Verdict result={phase.result} stream={phase.stream} chain={phase.chain} clipUrl={phase.clipUrl} duration={phase.duration} onRecord={phase.onRecord} hasVideo={phase.hasVideo} streamsChecked={phase.streamsChecked} minutesChecked={phase.minutesChecked} />
           </motion.div>
         )}
       </AnimatePresence>
