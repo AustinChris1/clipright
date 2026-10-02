@@ -13,7 +13,7 @@ export default async function StreamsPage() {
       <p className="font-mono text-xs uppercase tracking-[0.2em] text-stamp">Streams</p>
       <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">Everything on record.</h1>
       <p className="mt-3 max-w-2xl text-muted">Every stream opened on the registry, newest first, read straight from Monad. Each minute is a transaction.</p>
-      <p className="mt-2 font-mono text-xs text-muted">event source: {source === "envio-hyperrpc" ? "Envio HyperRPC" : source === "public-rpc" ? "public RPC (recent blocks only)" : "none"}</p>
+      <p className="mt-2 font-mono text-xs text-muted">event source: {source === "envio-hypersync" ? "Envio HyperSync" : source === "public-rpc" ? "public RPC (recent blocks only)" : "none"}</p>
       <ul className="mt-10 divide-y divide-line rounded-3xl border border-line bg-card">
         {streams.length === 0 && <li className="p-6 text-sm text-muted">Nothing stamped yet. Go live to create the first record.</li>}
         {streams.map((s) => (

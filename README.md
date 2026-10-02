@@ -74,7 +74,7 @@ flowchart LR
 
 ## Why Monad
 
-- **Cheap enough to stamp every minute.** Monad charges for the gas limit you set, not what you use, so the relayer sets the limit to the gas estimate plus 15%. A stamp used 80,381 gas in our EVM tests, so a limit near 100,000 gas costs about 0.01 MON at the documented minimum base fee. A six-hour stream is 360 stamps, or about 3.6 MON, roughly $0.10 at MON prices of $0.027 to $0.029 (early October 2026). If network fees rise above the minimum, it costs more.
+- **Cheap enough to stamp every minute.** Monad charges for the gas limit you set, not what you use, so the relayer sets the limit to a fresh gas estimate plus 5%. On Monad testnet a stamp cost 0.0107 MON (104,982 gas at 102 gwei). A six-hour stream is 360 stamps, or about 3.85 MON, roughly $0.10 to $0.11 at MON prices of $0.027 to $0.029 (early October 2026). If network fees rise, it costs more.
 - **Final in under a second.** Monad blocks are 300ms and final in about 600ms, so a minute's stamp is settled long before anyone could cut, caption and post a clip from it.
 - **Public.** Anyone can check a clip against the record without asking Clipright, a platform, or the creator.
 
@@ -104,8 +104,8 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
-- [ ] **Monad testnet deployment.** Everything above was run on a local devnet; testnet is next.
-- [ ] **Envio.** Stream history is read through Envio HyperRPC when `ENVIO_API_TOKEN` is set, because Monad's public RPC limits log queries to 100 blocks (about 30 seconds). A HyperIndex indexer is not set up yet.
+- [x] **Live on Monad testnet** at [`0x23388E372E0799c93Ab3f2846079c4dfBC8b111D`](https://testnet.monadscan.com/address/0x23388E372E0799c93Ab3f2846079c4dfBC8b111D), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0x23388E372E0799c93Ab3f2846079c4dfBC8b111D). The four test clips pass against it in Chrome.
+- [x] **Envio HyperSync** reads the registry's full event history for the streams list and the "stamped first" ordering. Monad's public RPC limits log queries to 100 blocks (about 30 seconds of history), so without it the app can only see recent streams.
 - [ ] **Hosting and demo video.**
 
 ### The test clips
@@ -136,7 +136,7 @@ pnpm deploy:local                           # terminal 2, from packages/contract
 cd apps/web && NEXT_PUBLIC_CHAIN_ID=31337 pnpm dev
 ```
 
-The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_API_TOKEN` from `.env` at the repo root. The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
+The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY` from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
 
 ## How the code is laid out
 
@@ -148,7 +148,7 @@ The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_AP
 
 - [Monad](https://monad.xyz): the public record of minute stamps
 - [Mera](https://github.com/category-labs/mera): the stamping key, derived from a passkey with Clipright's own PRF salt
-- [Envio HyperRPC](https://docs.envio.dev): stream history beyond the public RPC's 100-block log limit
+- [Envio HyperSync](https://docs.envio.dev/docs/HyperSync/overview): stream history beyond the public RPC's 100-block log limit
 - Sound fingerprinting in the style of Shazam and [audfprint](https://github.com/dpwe/audfprint), and a picture hash in the style of [PDQ](https://github.com/facebook/ThreatExchange), both written from scratch in TypeScript
 
 ## The mark

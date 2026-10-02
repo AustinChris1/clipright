@@ -10,7 +10,7 @@ function wallet() {
   return createWalletClient({ account: privateKeyToAccount(key, { nonceManager }), chain, transport: http(RPC_URL) });
 }
 
-// Monad bills the gas limit, not gas used, so the limit is the estimate plus a small margin.
+// Monad bills the gas limit, not gas used; the estimate is taken just before sending, so 5% covers drift.
 async function send(functionName: "openStream" | "stamp", args: readonly unknown[]) {
   const client = wallet();
   const { request } = await publicClient.simulateContract({
@@ -21,7 +21,7 @@ async function send(functionName: "openStream" | "stamp", args: readonly unknown
     account: client.account,
   });
   const estimate = await publicClient.estimateContractGas({ ...request, account: client.account });
-  const hash = await client.writeContract({ ...request, gas: (estimate * 115n) / 100n });
+  const hash = await client.writeContract({ ...request, gas: (estimate * 105n) / 100n });
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
   if (receipt.status !== "success") throw new Error(`transaction reverted: ${hash}`);
   return receipt;
