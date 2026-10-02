@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
 import type { Hex } from "viem";
 import { getStream, listStreams, stampTimes, verifyOnChain, type MinuteCheck, type OnRecord } from "@/lib/client/api";
-import { fingerprintClip } from "@/lib/client/media";
+import { openClip } from "@/lib/client/media";
 import type { StreamMeta } from "@/lib/types";
 import { Verdict } from "./Verdict";
 
@@ -25,12 +25,25 @@ export function Checker() {
     const started = performance.now();
     try {
       setPhase({ kind: "working", stage: "Listening", progress: 0 });
-      const clip = await fingerprintClip(file, (stage, progress) => setPhase({ kind: "working", stage, progress }));
-      setPhase({ kind: "working", stage: "Comparing with stamped streams", progress: 1 });
-      const streams = await listStreams();
-      const details = await Promise.all(streams.filter((s) => s.fingerprints).map((s) => getStream(s.streamId)));
-      const candidates = details.map((d) => ({ streamId: d.meta.streamId, minutes: d.minutes as MinuteFile[] }));
-      const result = checkClip(clip, candidates);
+      const opened = await openClip(file, (stage, progress) => setPhase({ kind: "working", stage, progress }));
+      const clip = opened.print;
+      let result: CheckResult;
+      let details: Awaited<ReturnType<typeof getStream>>[] = [];
+      try {
+        setPhase({ kind: "working", stage: "Comparing with stamped streams", progress: 1 });
+        const streams = await listStreams();
+        details = await Promise.all(streams.filter((s) => s.fingerprints).map((s) => getStream(s.streamId)));
+        const candidates = details.map((d) => ({ streamId: d.meta.streamId, minutes: d.minutes as MinuteFile[] }));
+        result = checkClip(clip, candidates);
+        // Once the offset is known, grab exact frames for the matched seconds and score again.
+        if (result.offsetSec !== null && clip.frames.length) {
+          setPhase({ kind: "working", stage: "Confirming pictures", progress: 1 });
+          await opened.fill(result.seconds.map((s) => s.s + 0.5 - result.offsetSec!));
+          result = checkClip(clip, candidates);
+        }
+      } finally {
+        opened.close();
+      }
       let chain: MinuteCheck[] = [];
       let stream: StreamMeta | null = null;
       let onRecord: OnRecord[] = [];

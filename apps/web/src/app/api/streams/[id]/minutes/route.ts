@@ -57,8 +57,8 @@ export async function POST(req: Request, ctx: RouteContext<"/api/streams/[id]/mi
     await saveReceipt(id as Hex, receipt);
     return Response.json(receipt);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "stamp failed";
-    const status = msg.includes("AlreadyStamped") ? 409 : 502;
-    return Response.json({ error: msg.split("\n")[0] }, { status });
+    console.error("stamp relay failed", e);
+    const { message, status } = revertMessage(e);
+    return Response.json({ error: message }, { status });
   }
 }

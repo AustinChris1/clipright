@@ -12,6 +12,8 @@ const config: HardhatUserConfig = {
     settings: { optimizer: { enabled: true, runs: 1000 }, evmVersion: "prague" },
   },
   networks: {
+    // `hardhat node` mines a block every second, like a live chain, so time-based rules behave.
+    node: { type: "edr-simulated", chainType: "l1", mining: { auto: true, interval: 1000 } },
     localhost: { type: "http", chainType: "l1", url: "http://127.0.0.1:8545" },
     monadTestnet: {
       type: "http",

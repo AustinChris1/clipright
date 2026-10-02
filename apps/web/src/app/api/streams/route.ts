@@ -21,6 +21,8 @@ export async function POST(req: Request) {
     await saveStream(meta);
     return Response.json(meta);
   } catch (e) {
-    return Response.json({ error: e instanceof Error ? e.message.split("\n")[0] : "open failed" }, { status: 502 });
+    console.error("open relay failed", e);
+    const { message, status } = revertMessage(e);
+    return Response.json({ error: message }, { status });
   }
 }

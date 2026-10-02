@@ -16,9 +16,14 @@ let pace: { secPerBlock: number; at: number } | null = null;
 async function blocksIn(seconds: number): Promise<{ head: number; from: number }> {
   const head = Number(await publicClient.getBlockNumber());
   if (!pace || Date.now() - pace.at > 600_000) {
-    const span = 2000;
-    const [a, b] = await Promise.all([publicClient.getBlock({ blockNumber: BigInt(head - span) }), publicClient.getBlock({ blockNumber: BigInt(head) })]);
-    pace = { secPerBlock: Math.max(0.05, Number(b.timestamp - a.timestamp) / span), at: Date.now() };
+    // Young chains (a fresh devnet) have fewer blocks than the sample span.
+    const span = Math.min(2000, head);
+    let secPerBlock = 0.4;
+    if (span >= 10) {
+      const [a, b] = await Promise.all([publicClient.getBlock({ blockNumber: BigInt(head - span) }), publicClient.getBlock({ blockNumber: BigInt(head) })]);
+      secPerBlock = Math.max(0.05, Number(b.timestamp - a.timestamp) / span);
+    }
+    pace = { secPerBlock, at: Date.now() };
   }
   return { head, from: head - Math.ceil(seconds / pace.secPerBlock) };
 }
@@ -53,6 +58,7 @@ export async function pacingWait(streamId: Hex, minute: number): Promise<number>
     publicClient.readContract({ address: REGISTRY, abi: stampRegistryAbi, functionName: "streams", args: [streamId] }),
     publicClient.getBlock(),
   ]);
+  // Chain time, not wall time: the contract judges TooEarly by block.timestamp.
   return Math.max(0, Number(openedAt) + minute * 60 - Number(block.timestamp));
 }
 
