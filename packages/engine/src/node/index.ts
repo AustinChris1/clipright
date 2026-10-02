@@ -28,8 +28,16 @@ export async function ffmpeg(args: string[]): Promise<Buffer> {
   return (await run(args, "error")).out;
 }
 
+const noStream = (e: unknown) => e instanceof Error && /does not contain any stream|matches no streams/.test(e.message);
+
 export async function decodeAudio8k(file: string): Promise<Float32Array> {
-  const buf = await ffmpeg(["-i", file, "-vn", "-ac", "1", "-ar", "48000", "-f", "f32le", "-"]);
+  let buf: Buffer;
+  try {
+    buf = await ffmpeg(["-i", file, "-vn", "-ac", "1", "-ar", "48000", "-f", "f32le", "-"]);
+  } catch (e) {
+    if (noStream(e)) return new Float32Array(0);
+    throw e;
+  }
   const pcm = new Float32Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
   return resample(pcm, 48000, SAMPLE_RATE);
 }
@@ -44,7 +52,14 @@ export interface TimedFrame {
 // Every decoded frame with its presentation time, downscaled to 64x64 grayscale.
 export async function decodeFrames(file: string, crop?: string): Promise<TimedFrame[]> {
   const vf = [crop, `scale=${PIC_SIZE}:${PIC_SIZE}:flags=area`, "format=gray", "showinfo"].filter(Boolean).join(",");
-  const { out, err } = await run(["-i", file, "-an", "-vf", vf, "-fps_mode", "passthrough", "-f", "rawvideo", "-"], "info");
+  let out: Buffer;
+  let err: string;
+  try {
+    ({ out, err } = await run(["-i", file, "-an", "-vf", vf, "-fps_mode", "passthrough", "-f", "rawvideo", "-"], "info"));
+  } catch (e) {
+    if (noStream(e)) return [];
+    throw e;
+  }
   const times = [...err.matchAll(/pts_time:\s*([-\d.]+)/g)].map((m) => Number(m[1]));
   const size = PIC_SIZE * PIC_SIZE;
   const frames: TimedFrame[] = [];

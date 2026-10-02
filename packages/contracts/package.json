@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "hardhat build",
+    "build": "hardhat build && node scripts/export-abi.ts",
     "test": "hardhat test",
-    "deploy:testnet": "hardhat run scripts/deploy.ts --network monadTestnet"
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network monadTestnet",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost"
   },
   "devDependencies": {
     "@clipright/engine": "workspace:^",
@@ -19,5 +20,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5"
+  },
+  "exports": {
+    "./abi": "./abi.ts"
   }
 }

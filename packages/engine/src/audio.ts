@@ -111,10 +111,16 @@ export function landmarks(pcm8k: Float32Array, frameOffset = 0): Landmark[] {
   return pairPeaks(findPeaks(spectrogram(pcm8k), frameOffset));
 }
 
-// Landmarks anchored inside one minute, using up to a second of lookahead for pairing.
+export const MINUTE_LOOKAHEAD_SAMPLES = SAMPLE_RATE + N_FFT;
+
+// slice8k starts exactly at the minute boundary and may run up to a second past it for pairing.
+export function landmarksForMinuteSlice(slice8k: Float32Array, minute: number): Landmark[] {
+  const firstFrame = minute * FRAMES_PER_MINUTE;
+  return landmarks(slice8k, firstFrame).filter((l) => l.frame < firstFrame + FRAMES_PER_MINUTE);
+}
+
 export function minuteLandmarks(pcm8k: Float32Array, minute: number): Landmark[] {
   const start = minute * 60 * SAMPLE_RATE;
-  const end = Math.min(pcm8k.length, start + 61 * SAMPLE_RATE + N_FFT);
-  const firstFrame = minute * FRAMES_PER_MINUTE;
-  return landmarks(pcm8k.subarray(start, end), firstFrame).filter((l) => l.frame < firstFrame + FRAMES_PER_MINUTE);
+  const end = Math.min(pcm8k.length, start + 60 * SAMPLE_RATE + MINUTE_LOOKAHEAD_SAMPLES);
+  return landmarksForMinuteSlice(pcm8k.subarray(start, end), minute);
 }

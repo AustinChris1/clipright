@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --paper: #f4f1ea;
+  --card: #fbf9f4;
+  --ink: #15130f;
+  --muted: #6b655b;
+  --line: #ddd6c8;
+  --stamp: #d9452b;
+  --match: #1f8a5b;
+  --warn: #b97c0c;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --paper: #0f0e0c;
+  --card: #181613;
+  --ink: #f1ece2;
+  --muted: #9a9386;
+  --line: #2c2924;
+  --stamp: #ff6a4d;
+  --match: #3fc488;
+  --warn: #e3a63a;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-stamp: var(--stamp);
+  --color-match: var(--match);
+  --color-warn: var(--warn);
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-jetbrains);
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--stamp);
+  color: var(--paper);
+}
+
+.grain {
+  background-image: radial-gradient(color-mix(in oklab, var(--ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

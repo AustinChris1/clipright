@@ -36,12 +36,19 @@ export interface SecondVerdict {
   picture: boolean;
 }
 
+export interface AlsoFound {
+  streamId: Hex;
+  offsetSec: number;
+  hits: number;
+}
+
 export interface CheckResult {
   status: "match" | "picture-only" | "no-match";
   streamId: Hex | null;
   offsetSec: number | null;
   audio: AudioMatch | null;
   seconds: SecondVerdict[];
+  alsoFound: AlsoFound[];
 }
 
 export function buildAudioIndex(minutes: MinuteFile[]): Map<number, number[]> {
@@ -198,19 +205,21 @@ export function verdicts(clip: ClipPrint, records: SecondRecord[], offsetSec: nu
 }
 
 export function checkClip(clip: ClipPrint, streams: { streamId: Hex; minutes: MinuteFile[] }[]): CheckResult {
-  let best: { streamId: Hex; audio: AudioMatch; records: SecondRecord[] } | null = null;
+  const audioHits: { streamId: Hex; audio: AudioMatch; records: SecondRecord[] }[] = [];
   for (const st of streams) {
     const audio = matchAudio(clip.landmarks, buildAudioIndex(st.minutes), clip.duration);
-    if (audioIsMatch(audio) && (!best || audio!.hits > best.audio.hits))
-      best = { streamId: st.streamId, audio: audio!, records: st.minutes.flatMap((m) => m.seconds) };
+    if (audioIsMatch(audio)) audioHits.push({ streamId: st.streamId, audio: audio!, records: st.minutes.flatMap((m) => m.seconds) });
   }
-  if (best) {
+  audioHits.sort((a, b) => b.audio.hits - a.audio.hits);
+  if (audioHits.length) {
+    const [best, ...rest] = audioHits;
     return {
       status: "match",
       streamId: best.streamId,
       offsetSec: best.audio.offsetSec,
       audio: best.audio,
       seconds: verdicts(clip, best.records, best.audio.offsetSec, best.audio),
+      alsoFound: rest.map((r) => ({ streamId: r.streamId, offsetSec: r.audio.offsetSec, hits: r.audio.hits })),
     };
   }
   let pic: { streamId: Hex; offsetSec: number; votes: number; records: SecondRecord[] } | null = null;
@@ -226,7 +235,8 @@ export function checkClip(clip: ClipPrint, streams: { streamId: Hex; minutes: Mi
       offsetSec: pic.offsetSec,
       audio: null,
       seconds: verdicts(clip, pic.records, pic.offsetSec, null),
+      alsoFound: [],
     };
   }
-  return { status: "no-match", streamId: null, offsetSec: null, audio: null, seconds: [] };
+  return { status: "no-match", streamId: null, offsetSec: null, audio: null, seconds: [], alsoFound: [] };
 }
