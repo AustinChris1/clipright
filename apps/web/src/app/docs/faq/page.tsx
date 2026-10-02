@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Limits and FAQ | Clipright docs" };
 const faqs = [
   {
     q: "Is my video uploaded anywhere?",
-    a: "No. Fingerprinting happens in your browser. Only the fingerprints of a stamped stream are stored, and a clip you check never leaves your device.",
+    a: "No. Fingerprinting happens in your browser. Only the fingerprints of a stamped stream are stored, and a clip you check never leaves your device. The one exception is Find a lead, which you press yourself: it sends 8 small frames and up to 30 seconds of sound to Google's Gemini, and the transcribed lines to Wikiquote. The clip file itself is not sent.",
   },
   {
     q: "Do I need a crypto wallet or MON?",
@@ -19,6 +19,10 @@ const faqs = [
   {
     q: "Can I stamp an old recording?",
     a: "Only at the pace it plays: minute m cannot be stamped until m minutes after the stream was opened. A stamp proves the footage existed by the time it was stamped, not when it was filmed.",
+  },
+  {
+    q: "Can it tell me where a TV or film clip is from?",
+    a: "Not with proof, because nobody stamped it. Find a lead transcribes the lines and searches Wikiquote for them exactly, which often names the show or film with a page you can check. In our tests a line from Invincible was found this way. Gemini's own guess is shown too, labelled unverified, because AI models also name the wrong film with high confidence.",
   },
   {
     q: "Why does the sound matter so much?",
@@ -47,7 +51,8 @@ export default function Faq() {
             Where a clip came from is a separate question from how many real people watched it.
           </Callout>
           <Callout tone="limit" title="It only covers streams that were stamped">
-            Footage from before a creator started stamping cannot be checked.
+            Footage from before a creator started stamping cannot be checked. Find a lead can point to where an unstamped clip may be from, but it is a
+            lead, not proof.
           </Callout>
           <Callout tone="warn" title="Testnet, for now">
             Clipright runs on Monad testnet during the hackathon, with demo limits on how many stamps the relayer pays for.

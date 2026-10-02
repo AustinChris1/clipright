@@ -94,7 +94,7 @@ These limits are part of the design, not fine print:
 - **It is not a deepfake detector.** It proves whether footage lines up with what was stamped. It cannot judge a video that was never stamped.
 - **Replaced audio weakens the match.** If a clip swaps the stream's sound for a trending song, only the picture check is left, and that only works when one of the prepared crops lines up.
 - **It does not count views or catch bot views.** If view-count reporting is added, it will repeat what the platform reports, nothing more.
-- **It only covers streams that were stamped.** Old footage, or streams by creators not using Clipright, cannot be checked.
+- **It only covers streams that were stamped.** Old footage, or streams by creators not using Clipright, cannot be checked. Find a lead can suggest where such a clip is from, but that is a lead, not proof.
 
 ## Who it is for
 
@@ -114,6 +114,7 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Try it in a minute.** Say one sentence; it is stamped on Monad, a copy is cut where you tap, and both are checked. The untouched copy matches; the edited copy is reported as "1.0 s cut out at 7s".
 - [x] **Cut and splice detection.** A clip stitched from several moments of a stream is matched piece by piece, and the check names what was cut out or inserted. Gate clip F (2 s removed) is reported exactly.
 - [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
+- [x] **Leads for unstamped clips.** Under a no match, Find a lead sends 8 small frames and up to 30 seconds of sound to Gemini (free tier), which transcribes the lines. Each line is searched as an exact phrase on Wikiquote, and anime frames on trace.moe. In testing, a spoken line from Invincible was found on Wikiquote. Gemini's own title is shown as an unverified guess, because it named the open film Sintel as "Heavenly Sword" at 95% confidence in an earlier prompt.
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
@@ -161,7 +162,7 @@ node packages/engine/scripts/make-clips.ts clipright-recording.webm 40   # start
 
 This writes `clips/vertical.mp4` (9:16 crop, captions, re-encoded), `clips/sound-swapped.mp4` (same pictures, generated music instead of the stream's sound) and `clips/unrelated.mp4`. Drop each into the Check page.
 
-The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY` from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
+The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY` and `GEMINI_API_KEY` (for Find a lead) from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
 
 Full docs, including use cases and the contract and API reference, are at [clipright.vercel.app/docs](https://clipright.vercel.app/docs).
 
@@ -177,6 +178,7 @@ Full docs, including use cases and the contract and API reference, are at [clipr
 - [Mera](https://github.com/category-labs/mera): the stamping key, derived from a passkey with Clipright's own PRF salt
 - [Dynamic](https://www.dynamic.xyz): connecting the creator's wallet to link it to their stamping key
 - [Envio HyperSync](https://docs.envio.dev/docs/HyperSync/overview): stream history beyond the public RPC's 100-block log limit
+- [Gemini](https://ai.google.dev), [Wikiquote](https://en.wikiquote.org) and [trace.moe](https://trace.moe): leads for clips that are not on record
 - Sound fingerprinting in the style of Shazam and [audfprint](https://github.com/dpwe/audfprint), and a picture hash in the style of [PDQ](https://github.com/facebook/ThreatExchange), both written from scratch in TypeScript
 
 ## The mark

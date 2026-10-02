@@ -8,12 +8,13 @@ import type { Hex } from "viem";
 import { getStream, listStreams, stampTimes, verifyOnChain, type MinuteCheck, type OnRecord } from "@/lib/client/api";
 import { openClip } from "@/lib/client/media";
 import type { StreamMeta } from "@/lib/types";
+import { Identify } from "./Identify";
 import { Verdict } from "./Verdict";
 
 type Phase =
   | { kind: "idle" }
   | { kind: "working"; stage: string; progress: number }
-  | { kind: "done"; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number; owner: Hex | null }
+  | { kind: "done"; file: File; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number; owner: Hex | null }
   | { kind: "error"; message: string };
 
 export function Checker() {
@@ -65,6 +66,7 @@ export function Checker() {
       }
       setPhase({
         kind: "done",
+        file,
         result,
         stream,
         chain,
@@ -161,6 +163,7 @@ export function Checker() {
               </button>
             </div>
             <Verdict result={phase.result} stream={phase.stream} chain={phase.chain} clipUrl={phase.clipUrl} duration={phase.duration} onRecord={phase.onRecord} hasVideo={phase.hasVideo} streamsChecked={phase.streamsChecked} minutesChecked={phase.minutesChecked} owner={phase.owner} />
+            {phase.result.status === "no-match" && <Identify file={phase.file} />}
           </motion.div>
         )}
       </AnimatePresence>

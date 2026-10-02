@@ -37,7 +37,8 @@ export default function TestIt() {
           <a className="underline decoration-line underline-offset-4" href="/check">
             Check a clip
           </a>
-          , and compare with the expected result.
+          , and compare with the expected result. On clip C, press Find a lead: Gemini should transcribe the cooking narration and describe a test
+          pattern, with no catalog hit.
         </p>
         <Table
           head={["Clip", "What was done to it", "Expected result"]}

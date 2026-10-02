@@ -47,6 +47,12 @@ export default function HowToUse() {
             [<span key="e" className="inline-flex items-center gap-2"><span className="h-3 w-1 rounded-full bg-warn" />Amber bar</span>, "A cut: the clip jumps forward in the stream here."],
           ]}
         />
+        <Callout title="No match? Find a lead">
+          A clip from a show, a film, or a stream nobody stamped never matches. Under a no match, press Find a lead. Clipright sends 8 small frames and up to
+          30 seconds of sound to Google&apos;s Gemini, which writes down what is said. Those exact lines are searched on Wikiquote, and anime frames on
+          trace.moe. Catalog hits are shown in green with a link to check; Gemini&apos;s own guess is shown in amber as unverified. A lead is not proof, and it
+          is never written to Monad.
+        </Callout>
         <Callout title="Same footage in several streams?">
           If a clip lines up with more than one stamped stream, Clipright lists all of them and marks the one stamped first onchain. That is how a re-stream of
           someone else's content shows up.

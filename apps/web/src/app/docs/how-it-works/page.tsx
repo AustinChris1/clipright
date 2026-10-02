@@ -95,6 +95,23 @@ export default function HowItWorks() {
         </Callout>
       </Section>
 
+      <Section id="lead" title="When nothing is on record">
+        <p>A no match is the honest answer for footage nobody stamped. If the viewer asks for a lead, the server runs three lookups and keeps them apart:</p>
+        <ol className="list-decimal space-y-2 pl-5">
+          <li>
+            Google&apos;s Gemini gets 8 small frames and up to 30 seconds of 8 kHz sound. It writes down the spoken lines word for word and describes the scene.
+          </li>
+          <li>
+            Each line is searched as an exact phrase on Wikiquote, an open catalog of film and TV dialogue. A hit links to the page that quotes it.
+          </li>
+          <li>The middle frame is sent to trace.moe, which finds anime episodes and the minute; only matches above 92% similarity are shown.</li>
+        </ol>
+        <Callout tone="warn" title="Why the AI guess is labelled unverified">
+          In testing, Gemini named an open-source short film as a different film with 95% confidence. Transcribing speech was reliable; naming titles was
+          not. So catalog hits are shown as leads with a link, the AI&apos;s title as a guess, and no AI confidence score is displayed.
+        </Callout>
+      </Section>
+
       <Section id="history" title="6. Reading the record">
         <p>
           The list of streams and the &quot;stamped first&quot; ordering come from the registry&apos;s events. Monad&apos;s public RPC answers{" "}

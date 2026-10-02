@@ -77,6 +77,7 @@ export default function Reference() {
             [<Code key="4">POST /api/streams</Code>, "Relays openStream. Body: signer, title, sig."],
             [<Code key="5">POST /api/streams/:id/minutes</Code>, "Relays one stamp. Body: the minute file and sig. 425 with retryAfter if the minute is early."],
             [<Code key="6">POST /api/links</Code>, "Relays a wallet link. Body: signer, owner, signerSig, ownerSig."],
+            [<Code key="7">POST /api/identify</Code>, "Leads for an unstamped clip. Body: frames (up to 10 base64 JPEGs) and audio (base64 WAV). Returns the transcribed lines, Wikiquote and trace.moe hits, and Gemini's unverified guess. 8 a minute."],
           ]}
         />
         <p>A minute file, abridged:</p>
