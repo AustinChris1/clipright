@@ -59,6 +59,12 @@ export default function Reference() {
           ]}
         />
         <p>Signatures are EIP-191 personal signatures over the 32-byte digest.</p>
+        <p>
+          <span className="font-medium">CreatorLinks</span> ties a stamping key to a creator wallet:{" "}
+          <Code>link(signer, owner, signerSig, ownerSig)</Code> needs both signatures over <Code>linkDigest(signer, owner, nonce)</Code>, accepts smart
+          wallets (ERC-1271), and emits <Code>Linked</Code>. <Code>ownerOf(signer)</Code> returns the current wallet. Source:{" "}
+          <Code>packages/contracts/contracts/CreatorLinks.sol</Code>.
+        </p>
       </Section>
 
       <Section id="api" title="HTTP API">
@@ -70,6 +76,7 @@ export default function Reference() {
             [<Code key="3">GET /api/streams/:id</Code>, "The stream's metadata, stamp receipts and minute fingerprint files."],
             [<Code key="4">POST /api/streams</Code>, "Relays openStream. Body: signer, title, sig."],
             [<Code key="5">POST /api/streams/:id/minutes</Code>, "Relays one stamp. Body: the minute file and sig. 425 with retryAfter if the minute is early."],
+            [<Code key="6">POST /api/links</Code>, "Relays a wallet link. Body: signer, owner, signerSig, ownerSig."],
           ]}
         />
         <p>A minute file, abridged:</p>

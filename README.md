@@ -109,6 +109,7 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 
 - [x] **Matcher gate passes.** A synthetic two-minute stream and five clips (see below), run with `pnpm gate`.
 - [x] **Contract** with 8 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs. A minute cannot be stamped before it could have started, so a stream stamps no faster than real time.
+- [x] **Wallet linking with Dynamic.** In Go live, a creator can connect any wallet through Dynamic (or an email wallet) and link it to their passkey key. A second contract, `CreatorLinks` at [`0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF`](https://testnet.monadscan.com/address/0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF), needs both signatures. Creators get a public page at `/creators/<wallet>`, and matching checks name the creator.
 - [x] **Gas protection.** The relayer refuses work past a per-hour open limit, a per-day stamp limit, a 240-minute stream cap, or a low-balance floor. The counts come from onchain events, so every server instance agrees.
 - [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
@@ -172,6 +173,7 @@ Full docs, including use cases and the contract and API reference, are at [clipr
 
 - [Monad](https://monad.xyz): the public record of minute stamps
 - [Mera](https://github.com/category-labs/mera): the stamping key, derived from a passkey with Clipright's own PRF salt
+- [Dynamic](https://www.dynamic.xyz): connecting the creator's wallet to link it to their stamping key
 - [Envio HyperSync](https://docs.envio.dev/docs/HyperSync/overview): stream history beyond the public RPC's 100-block log limit
 - Sound fingerprinting in the style of Shazam and [audfprint](https://github.com/dpwe/audfprint), and a picture hash in the style of [PDQ](https://github.com/facebook/ThreatExchange), both written from scratch in TypeScript
 

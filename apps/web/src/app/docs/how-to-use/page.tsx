@@ -59,6 +59,10 @@ export default function HowToUse() {
               body: "Each finished minute appears in the Stamps list with its Monad transaction. A minute is stamped a few seconds after it ends.",
             },
             { title: "Stop", body: "The last, shorter minute is stamped too. Download the recording if you want to cut clips from it." },
+            {
+              title: "Link your wallet (optional)",
+              body: "Connect any wallet through Dynamic and press Link this wallet. Your wallet and your passkey key both sign one message, Clipright pays the gas, and your streams appear on a public creator page at /creators/<your wallet>. Matching checks then name you as the creator.",
+            },
           ]}
         />
         <Callout tone="warn" title="Which devices work">
