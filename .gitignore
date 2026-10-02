@@ -9,3 +9,5 @@ apps/web/data
 *.log
 packages/contracts/deployments/31337.json
 apps/web/*.md
+.vercel
+.env*
