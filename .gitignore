@@ -1,0 +1,9 @@
+node_modules
+.next
+.env
+.env.local
+packages/engine/fixtures
+packages/contracts/artifacts
+packages/contracts/cache
+apps/web/data
+*.log

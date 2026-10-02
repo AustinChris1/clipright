@@ -1,0 +1,22 @@
+{
+  "name": "@clipright/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node/index.ts"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\"",
+    "gate": "node scripts/gate.ts"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ffmpeg-static": "^5.2.0",
+    "typescript": "^5.6.0"
+  }
+}

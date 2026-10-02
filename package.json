@@ -1,0 +1,14 @@
+{
+  "name": "clipright",
+  "private": true,
+  "packageManager": "pnpm@9.9.0",
+  "scripts": {
+    "gate": "pnpm --filter @clipright/engine gate",
+    "test": "pnpm -r test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "ffmpeg-static"
+    ]
+  }
+}
