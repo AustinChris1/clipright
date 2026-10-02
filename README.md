@@ -1,3 +1,10 @@
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/mark-dark.svg">
+    <img src="docs/mark-light.svg" width="72" height="72" alt="Clipright mark">
+  </picture>
+</p>
+
 # Clipright
 
 **Proof that a clip really came from the stream.**
