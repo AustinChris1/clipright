@@ -97,7 +97,7 @@ export default function Reference() {
         </p>
       </Section>
 
-      <NextPage href="/docs/faq" label="Limits and FAQ" />
+      <NextPage href="/docs/built-with" label="Built with" />
     </>
   );
 }

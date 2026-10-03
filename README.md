@@ -174,10 +174,12 @@ Full docs, including use cases and the contract and API reference, are at [clipr
 
 ## Built with
 
-- [Monad](https://monad.xyz): the public record of minute stamps
+How each one is used, with the page that shows it and the code: [clipright.vercel.app/docs/built-with](https://clipright.vercel.app/docs/built-with).
+
+- [Monad](https://monad.xyz): the public record of minute stamps, and onchain proof checks with `verifySecond`
 - [Mera](https://github.com/category-labs/mera): the stamping key, derived from a passkey with Clipright's own PRF salt
-- [Dynamic](https://www.dynamic.xyz): connecting the creator's wallet to link it to their stamping key
-- [Envio HyperSync](https://docs.envio.dev/docs/HyperSync/overview): stream history beyond the public RPC's 100-block log limit
+- [Dynamic](https://www.dynamic.xyz): connecting the creator's wallet to link it to their stamping key, so every match names the creator
+- [Envio HyperSync](https://docs.envio.dev/docs/HyperSync/overview): the full event history of both contracts, beyond the public RPC's 100-block log limit. It decides which streams a clip is checked against, maps stamping keys to creator wallets, fills the streams list, and counts the relayer's gas limits
 - [Gemini](https://ai.google.dev), [Wikiquote](https://en.wikiquote.org) and [trace.moe](https://trace.moe): leads for clips that are not on record
 - Sound fingerprinting in the style of Shazam and [audfprint](https://github.com/dpwe/audfprint), and a picture hash in the style of [PDQ](https://github.com/facebook/ThreatExchange), both written from scratch in TypeScript
 

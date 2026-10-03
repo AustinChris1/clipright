@@ -12,6 +12,7 @@ export const docPages = [
   { href: "/docs/how-it-works", label: "How it works" },
   { href: "/docs/test-it", label: "Test it yourself" },
   { href: "/docs/reference", label: "Contract and API" },
+  { href: "/docs/built-with", label: "Built with" },
   { href: "/docs/faq", label: "Limits and FAQ" },
 ];
 

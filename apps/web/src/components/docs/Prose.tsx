@@ -74,15 +74,17 @@ export function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-line">
       <table className="w-full min-w-[520px] text-left text-sm">
-        <thead className="bg-card text-xs text-muted">
-          <tr>
-            {head.map((h) => (
-              <th key={h} className="px-4 py-3 font-normal">
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
+        {head.some(Boolean) && (
+          <thead className="bg-card text-xs text-muted">
+            <tr>
+              {head.map((h) => (
+                <th key={h} className="px-4 py-3 font-normal">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        )}
         <tbody className="divide-y divide-line">
           {rows.map((r, i) => (
             <tr key={i}>
