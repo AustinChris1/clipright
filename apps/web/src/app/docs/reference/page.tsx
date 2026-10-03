@@ -78,6 +78,8 @@ export default function Reference() {
             [<Code key="5">POST /api/streams/:id/minutes</Code>, "Relays one stamp. Body: the minute file and sig. 425 with retryAfter if the minute is early."],
             [<Code key="6">POST /api/links</Code>, "Relays a wallet link. Body: signer, owner, signerSig, ownerSig."],
             [<Code key="7">POST /api/identify</Code>, "Leads for an unstamped clip. Body: frames (up to 10 base64 JPEGs) and audio (base64 WAV). Returns the transcribed lines, Wikiquote and trace.moe hits, and Gemini's unverified guess (null when Whisper on Groq stood in). 8 a minute."],
+            [<Code key="9">POST /api/verdicts</Code>, "Creates a shareable link. Body: streamId, duration, landmarks, frames ([t, hash hex]) and an optional thumbnail. The server matches the fingerprint again and refuses clips that do not match. Returns the /v/<id> path."],
+            [<Code key="10">GET /api/verdicts/:id</Code>, "The checked clip's sound landmarks, so a viewer's browser can compare its own copy."],
             [<Code key="8">POST /api/leads</Code>, "Cached leads for a clip. Body: landmarks ([hash, frame] pairs) and duration. Returns catalog hits found for the same sound earlier, or none."],
           ]}
         />

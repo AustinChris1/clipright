@@ -1,11 +1,12 @@
 "use client";
 
-import type { CheckResult } from "@clipright/engine";
+import type { CheckResult, SecondVerdict } from "@clipright/engine";
 import type { Hex } from "viem";
 import { BadgeCheck, CircleSlash, Clock, ExternalLink, ImageIcon, Info, Link2, Radio, Scissors } from "lucide-react";
 import { motion } from "motion/react";
 import type { MinuteCheck, OnRecord } from "@/lib/client/api";
 import { txUrl } from "@/lib/config";
+import { timecode } from "@/lib/verdictCopy";
 import type { StreamMeta } from "@/lib/types";
 
 function clipTime(sec: number) {
@@ -13,11 +14,7 @@ function clipTime(sec: number) {
   return `${m}:${String(Math.floor(sec - m * 60)).padStart(2, "0")}`;
 }
 
-export function timecode(sec: number) {
-  const m = Math.floor(sec / 60);
-  const s = sec - m * 60;
-  return `${String(m).padStart(2, "0")}:${s.toFixed(1).padStart(4, "0")}`;
-}
+export { timecode };
 
 const tone = {
   edited: { label: "Edited from a stamped stream", icon: Scissors, cls: "text-warn", ring: "border-warn/40 bg-warn/5" },
@@ -133,7 +130,7 @@ export function Verdict({
                 ))}
               </ul>
             )}
-            <SecondStrip result={result} />
+            <SecondStrip seconds={result.seconds} />
             <dl className="mt-8 grid gap-3 sm:grid-cols-3">
               <Evidence label="Sound" value={result.audio ? `${result.audio.hits} fingerprints aligned` : "no match"} sub={`${soundOk} of ${result.seconds.length} seconds`} />
               <Evidence
@@ -223,7 +220,7 @@ function Evidence({ label, value, sub }: { label: string; value: string; sub: st
   );
 }
 
-function SecondStrip({ result }: { result: CheckResult }) {
+export function SecondStrip({ seconds }: { seconds: Pick<SecondVerdict, "s" | "audio" | "picture" | "audioHits" | "pictureBits">[] }) {
   return (
     <div className="mt-8">
       <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
@@ -239,10 +236,10 @@ function SecondStrip({ result }: { result: CheckResult }) {
         ))}
       </div>
       <div className="flex gap-1">
-        {result.seconds.map((s, i) => {
+        {seconds.map((s, i) => {
           const both = s.audio && s.picture;
           const cls = both ? "bg-match" : s.audio ? "bg-match/55" : s.picture ? "bg-warn/70" : "bg-stamp";
-          const jump = i > 0 && s.s !== result.seconds[i - 1].s + 1;
+          const jump = i > 0 && s.s !== seconds[i - 1].s + 1;
           return (
             <motion.div
               key={`${s.s}-${i}`}
@@ -258,8 +255,8 @@ function SecondStrip({ result }: { result: CheckResult }) {
         })}
       </div>
       <div className="mt-1 flex justify-between font-mono text-xs text-muted tabular">
-        <span>{timecode(result.seconds[0].s)}</span>
-        <span>{timecode(result.seconds.at(-1)!.s + 1)}</span>
+        <span>{timecode(seconds[0].s)}</span>
+        <span>{timecode(seconds.at(-1)!.s + 1)}</span>
       </div>
     </div>
   );

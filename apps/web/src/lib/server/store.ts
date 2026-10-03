@@ -208,3 +208,31 @@ export async function saveLead(lead: LeadFile) {
 export async function loadLeads(): Promise<LeadFile[]> {
   return (await entries("leads/")).filter(([n, v]) => /leads\/[0-9a-f]{16}\.json$/.test(n) && !!v).map(([, v]) => v as LeadFile);
 }
+
+// A shareable result: what the server itself found for a clip's fingerprint, plus that fingerprint for re-checks.
+export interface VerdictFile {
+  id: string;
+  createdAt: number;
+  streamId: Hex;
+  streamTitle: string;
+  owner: Hex | null;
+  status: "match" | "picture-only";
+  offsetSec: number;
+  endSec: number;
+  duration: number;
+  hasVideo: boolean;
+  audioHits: number;
+  seconds: { s: number; audio: boolean; picture: boolean; audioHits: number; pictureBits: number | null }[];
+  edits: { kind: "cut" | "inserted" | "reordered"; atClipSec: number; seconds: number }[];
+  thumb: string | null;
+  landmarks: [hash: number, frame: number][];
+}
+
+export async function saveVerdict(v: VerdictFile) {
+  await store().write(`verdicts/${v.id}.json`, JSON.stringify(v));
+}
+
+export async function getVerdict(id: string): Promise<VerdictFile | null> {
+  if (!/^[A-Za-z0-9_-]{8,16}$/.test(id)) return null;
+  return store().read<VerdictFile>(`verdicts/${id}.json`);
+}

@@ -17,6 +17,10 @@ const faqs = [
     a: "Not without detection. Your browser re-hashes the fingerprint files and compares them with roots read directly from Monad, and the contract checks a proof for one matched second.",
   },
   {
+    q: "Can someone fake a shareable link?",
+    a: "Not the result. The server matches the clip's fingerprint against the stamped stream itself before it makes a link, and the link page asks Monad again every time it is opened. What a link proves is that a clip with that fingerprint was checked, so the page lets anyone drop the clip they saw and compare it, in their own browser.",
+  },
+  {
     q: "Can I stamp an old recording?",
     a: "Only at the pace it plays: minute m cannot be stamped until m minutes after the stream was opened. A stamp proves the footage existed by the time it was stamped, not when it was filmed.",
   },

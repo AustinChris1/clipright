@@ -32,6 +32,10 @@ export default function HowToUse() {
               body: "Match: the stream and the exact time range. Pictures match, sound does not: the soundtrack was replaced or altered. No match: nothing on record lines up.",
             },
             {
+              title: "Share the result",
+              body: "After a match, press Get a shareable link and post it next to the clip. The link page shows the verdict, asks Monad again for every viewer, and lets anyone drop their copy to confirm it is the same clip. When posted on X or Discord, the link previews as a card with the verdict.",
+            },
+            {
               title: "Look at the evidence",
               body: "One coloured cell per second shows whether sound, picture or both matched. The side panel shows each minute re-hashed in your browser and compared with Monad.",
             },

@@ -18,6 +18,8 @@ const links = process.env.NEXT_PUBLIC_LINKS || deployed?.links || "";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@clipright/engine", "@clipright/contracts"],
+  // Fonts for the generated preview images of shared links.
+  outputFileTracingIncludes: { "/v/[id]/*": ["./assets/fonts/**"] },
   env: {
     NEXT_PUBLIC_CHAIN_ID: chainId,
     NEXT_PUBLIC_REGISTRY: registry,
