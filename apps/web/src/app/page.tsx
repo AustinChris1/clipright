@@ -1,3 +1,4 @@
+import { Faq } from "@/components/landing/Faq";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Proofs } from "@/components/landing/Proofs";
@@ -10,6 +11,7 @@ export default function Home() {
       <HowItWorks />
       <Proofs />
       <WhyMonad />
+      <Faq />
     </>
   );
 }

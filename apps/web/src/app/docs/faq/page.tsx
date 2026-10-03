@@ -21,6 +21,10 @@ const faqs = [
     a: "Not the result. The server matches the clip's fingerprint against the stamped stream itself before it makes a link, and the link page asks Monad again every time it is opened. What a link proves is that a clip with that fingerprint was checked, so the page lets anyone drop the clip they saw and compare it, in their own browser.",
   },
   {
+    q: "Why Monad? Could it run on another chain?",
+    a: "The contract is plain Solidity, so it could run on any EVM chain. Monad fits because a stamp every minute for every stream needs three things together: fees low enough for 360 stamps per six-hour stream (about $0.10 on Monad testnet), finality the protocol guarantees in about 0.6 s rather than a rollup sequencer's promise that settles on Ethereum later, and throughput for thousands of streams stamping at once (10,000 live streams is about 170 stamps a second).",
+  },
+  {
     q: "Can I stamp an old recording?",
     a: "Only at the pace it plays: minute m cannot be stamped until m minutes after the stream was opened. A stamp proves the footage existed by the time it was stamped, not when it was filmed.",
   },

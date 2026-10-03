@@ -87,6 +87,8 @@ flowchart LR
 - **Final in under a second.** Monad blocks are 300ms and final in about 600ms, so a minute's stamp is settled long before anyone could cut, caption and post a clip from it.
 - **Public.** Anyone can check a clip against the record without asking Clipright, a platform, or the creator.
 
+**Could it run on another chain?** Yes: the contract is plain Solidity and would deploy on any EVM chain unchanged. Monad is where all three needs meet at once. Ethereum mainnet costs too much per minute. Rollups are cheap, but their fast confirmations are a sequencer's promise until the batch settles on Ethereum. And 10,000 live streams stamping every minute is about 170 transactions a second, sustained.
+
 ## What it does not do
 
 These limits are part of the design, not fine print:
