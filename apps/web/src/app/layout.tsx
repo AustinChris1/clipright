@@ -9,8 +9,11 @@ const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://clipright.vercel.app"),
   title: "Clipright: proof a clip came from the stream",
-  description: "Drop a clip. Clipright tells you which stream it came from, to the second, against a public record on Monad.",
+  description: "Stamp a stream live on Monad. Anyone can check a clip: the stream, the second, and what was cut.",
+  openGraph: { siteName: "Clipright", type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
