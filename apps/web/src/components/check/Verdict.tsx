@@ -2,7 +2,7 @@
 
 import type { CheckResult } from "@clipright/engine";
 import type { Hex } from "viem";
-import { BadgeCheck, CircleSlash, ExternalLink, ImageIcon, Link2, Scissors } from "lucide-react";
+import { BadgeCheck, CircleSlash, Clock, ExternalLink, ImageIcon, Info, Link2, Radio, Scissors } from "lucide-react";
 import { motion } from "motion/react";
 import type { MinuteCheck, OnRecord } from "@/lib/client/api";
 import { txUrl } from "@/lib/config";
@@ -65,22 +65,21 @@ export function Verdict({
         </div>
         {result.status === "no-match" ? (
           <>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">This clip does not line up with any stamped stream.</h2>
-            <p className="mt-3 max-w-xl text-muted">
-              Checked against {streamsChecked} stamped stream{streamsChecked === 1 ? "" : "s"} ({minutesChecked} minute{minutesChecked === 1 ? "" : "s"} on record). Neither
-              its sound nor its pictures line up with any of them.
-            </p>
-            <div className="mt-6 max-w-xl rounded-2xl border border-line bg-card p-4 text-sm">
-              <p className="font-medium">What this means</p>
-              <p className="mt-1 text-muted">
-                Clipright only recognises footage from streams that were stamped while they happened. A clip from a TV show, a film, or any stream nobody
-                stamped will always come back as no match. That is the honest answer, not a failure. It can also mean the clip was edited away from what was
-                stamped.
-              </p>
-              <a href="/docs/test-it#clips" className="mt-2 inline-block text-ink underline decoration-line underline-offset-4">
-                Try a clip that is on record
-              </a>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Not on record.</h2>
+            <div className="mt-4 flex flex-wrap gap-2 text-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5">
+                <Radio size={14} className="text-muted" /> {streamsChecked} stream{streamsChecked === 1 ? "" : "s"} checked
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5">
+                <Clock size={14} className="text-muted" /> {minutesChecked} minute{minutesChecked === 1 ? "" : "s"} on record
+              </span>
             </div>
+            <p className="mt-4 inline-flex items-start gap-2 text-sm text-muted">
+              <Info size={15} className="mt-0.5 shrink-0" /> Only footage stamped while it streamed can match. TV, films and unstamped streams never will.
+            </p>
+            <a href="/docs/test-it#clips" className="mt-3 block text-sm text-ink underline decoration-line underline-offset-4">
+              Try a clip that is on record
+            </a>
           </>
         ) : (
           <>

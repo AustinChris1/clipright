@@ -96,10 +96,15 @@ export default function HowItWorks() {
       </Section>
 
       <Section id="lead" title="When nothing is on record">
-        <p>A no match is the honest answer for footage nobody stamped. If the viewer asks for a lead, the server runs three lookups and keeps them apart:</p>
+        <p>
+          A no match is the honest answer for footage nobody stamped. The browser first sends the clip&apos;s sound landmarks, never the sound itself, to{" "}
+          <Code>/api/leads</Code>. They are matched with the same offset histogram as stamped streams against clips someone already found a lead for, so a
+          re-upload or re-crop of a known clip gets its lead at once. If the viewer asks for more, the server runs three lookups and keeps them apart:
+        </p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>
-            Google&apos;s Gemini gets 8 small frames and up to 30 seconds of 8 kHz sound. It writes down the spoken lines word for word and describes the scene.
+            Google&apos;s Gemini gets 8 small frames and up to 30 seconds of 8 kHz sound. It writes down the spoken lines word for word and describes the scene. If Gemini is busy or out of free quota, Whisper on Groq writes down
+            the speech instead, with no scene description.
           </li>
           <li>
             Each line is searched as an exact phrase on Wikiquote, an open catalog of film and TV dialogue. A hit links to the page that quotes it.
@@ -108,7 +113,7 @@ export default function HowItWorks() {
         </ol>
         <Callout tone="warn" title="Why the AI guess is labelled unverified">
           In testing, Gemini named an open-source short film as a different film with 95% confidence. Transcribing speech was reliable; naming titles was
-          not. So catalog hits are shown as leads with a link, the AI&apos;s title as a guess, and no AI confidence score is displayed.
+          not. So catalog hits are shown as leads with a link, the AI&apos;s title as a guess, and no AI confidence score is displayed. Only catalog hits are cached for the next viewer, never the AI&apos;s guess.
         </Callout>
       </Section>
 

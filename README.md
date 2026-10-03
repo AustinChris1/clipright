@@ -114,13 +114,13 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Try it in a minute.** Say one sentence; it is stamped on Monad, a copy is cut where you tap, and both are checked. The untouched copy matches; the edited copy is reported as "1.0 s cut out at 7s".
 - [x] **Cut and splice detection.** A clip stitched from several moments of a stream is matched piece by piece, and the check names what was cut out or inserted. Gate clip F (2 s removed) is reported exactly.
 - [x] **Check page.** Drop a file, get a match or a miss, then each matched minute is re-hashed in the browser and checked on Monad.
-- [x] **Leads for unstamped clips.** Under a no match, Find a lead sends 8 small frames and up to 30 seconds of sound to Gemini (free tier), which transcribes the lines. Each line is searched as an exact phrase on Wikiquote, and anime frames on trace.moe. In testing, a spoken line from Invincible was found on Wikiquote. Gemini's own title is shown as an unverified guess, because it named the open film Sintel as "Heavenly Sword" at 95% confidence in an earlier prompt.
+- [x] **Leads for unstamped clips.** Under a no match, Clipright first looks the clip up among clips someone already found a lead for, using only its sound landmarks, and shows the hit instantly. Find a lead sends 8 small frames and up to 30 seconds of sound to Gemini (free tier), which transcribes the lines. Each line is searched as an exact phrase on Wikiquote, and anime frames on trace.moe. In testing, a spoken line from Invincible was found on Wikiquote. Gemini's own title is shown as an unverified guess, because it named the open film Sintel as "Heavenly Sword" at 95% confidence in an earlier prompt. If Gemini is busy or out of quota, Whisper on Groq writes down the speech instead. Only catalog hits are cached, never the AI guess.
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
-- [x] **Live on Monad testnet** at [`0x570fA5455A67Fa925d130c29176d70D85cc202e0`](https://testnet.monadscan.com/address/0x570fA5455A67Fa925d130c29176d70D85cc202e0), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0x570fA5455A67Fa925d130c29176d70D85cc202e0). The four test clips pass against it in Chrome.
+- [x] **Live on Monad testnet** at [`0x2214F0361424A7567F22CA6F47727073b70f5429`](https://testnet.monadscan.com/address/0x2214F0361424A7567F22CA6F47727073b70f5429), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0x2214F0361424A7567F22CA6F47727073b70f5429). The four test clips pass against it in Chrome.
 - [x] **Envio HyperSync** reads the registry's full event history for the streams list and the "stamped first" ordering. Monad's public RPC limits log queries to 100 blocks (about 30 seconds of history), so without it the app can only see recent streams.
-- [x] **Hosted on Vercel** at [clipright.vercel.app](https://clipright.vercel.app). Every push to `main` deploys. Fingerprint files live in Vercel Blob. The four test clips pass against the live site.
+- [x] **Hosted on Vercel** at [clipright.vercel.app](https://clipright.vercel.app). Every push to `main` deploys. Fingerprint files and the lead cache live in Postgres on Neon. The test clips pass against the live site.
 - [ ] **Demo video.**
 
 ### The test clips
@@ -162,7 +162,7 @@ node packages/engine/scripts/make-clips.ts clipright-recording.webm 40   # start
 
 This writes `clips/vertical.mp4` (9:16 crop, captions, re-encoded), `clips/sound-swapped.mp4` (same pictures, generated music instead of the stream's sound) and `clips/unrelated.mp4`. Drop each into the Check page.
 
-The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY` and `GEMINI_API_KEY` (for Find a lead) from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
+The web app reads `RELAYER_KEY` (pays gas for stamps) and, optionally, `ENVIO_HYPERSYNC_KEY`, `DATABASE_URL_POOLED` (Postgres; without it, files are written to `apps/web/data`), `GEMINI_API_KEY` and `GROQ_API_KEY` (for Find a lead) from `.env` at the repo root (see `.env.example`). The registry address is picked up from `packages/contracts/deployments/<chainId>.json`.
 
 Full docs, including use cases and the contract and API reference, are at [clipright.vercel.app/docs](https://clipright.vercel.app/docs).
 

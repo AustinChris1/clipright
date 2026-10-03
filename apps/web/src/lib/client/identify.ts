@@ -1,4 +1,4 @@
-import { SAMPLE_RATE } from "@clipright/engine";
+import { SAMPLE_RATE, type Landmark } from "@clipright/engine";
 import { decodePcm8k } from "./media";
 import { encodeWav } from "./wav";
 
@@ -12,15 +12,16 @@ export interface CatalogHit {
 
 export interface Identification {
   model: string;
-  ai: {
-    lines: string[];
-    description: string;
-    title?: string;
-    kind?: string;
-    evidence: string[];
-    confidence: number;
-  };
+  lines: string[];
+  ai: { description: string; title?: string; kind?: string; evidence: string[] } | null;
   catalog: CatalogHit[];
+}
+
+// Free and automatic: only sound landmark hashes are sent, and a clip someone already looked up comes back at once.
+export async function lookupLead(landmarks: Landmark[], duration: number): Promise<CatalogHit[]> {
+  const res = await fetch("/api/leads", { method: "POST", body: JSON.stringify({ landmarks: landmarks.slice(0, 20_000).map((l) => [l.hash, l.frame]), duration }) });
+  if (!res.ok) return [];
+  return ((await res.json()).catalog ?? []) as CatalogHit[];
 }
 
 const FRAMES = 8;

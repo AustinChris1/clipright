@@ -6,9 +6,9 @@ import { Mic, ScanSearch, Stamp } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 const steps = [
-  { icon: Mic, title: "Record", line: "Your browser fingerprints the sound and picture of every second.", detail: "the video never leaves your device" },
-  { icon: Stamp, title: "Stamp", line: "Each minute becomes one code, signed by your passkey, written to Monad.", detail: "one transaction a minute" },
-  { icon: ScanSearch, title: "Check", line: "Anyone drops a clip and gets the stream and the second, or a miss.", detail: "checked against the chain, not us" },
+  { icon: Mic, title: "Record", detail: "video stays on your device" },
+  { icon: Stamp, title: "Stamp", detail: "one code a minute on Monad" },
+  { icon: ScanSearch, title: "Check", detail: "stream and second, or a miss" },
 ];
 
 export function HowItWorks() {
@@ -40,7 +40,6 @@ export function HowItWorks() {
                 </div>
                 <p className="mt-5 font-mono text-xs text-muted">0{i + 1}</p>
                 <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
-                <p className="mt-2 text-muted">{s.line}</p>
                 <p className="mt-3 inline-block rounded-full border border-line px-3 py-1 font-mono text-xs">{s.detail}</p>
               </li>
             ))}

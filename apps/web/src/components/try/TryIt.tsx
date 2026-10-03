@@ -1,7 +1,7 @@
 "use client";
 
 import { buildMinute, checkClip, landmarks, landmarksForMinuteSlice, resample, SAMPLE_RATE, type CheckResult, type MinuteFile } from "@clipright/engine";
-import { BadgeCheck, Download, Loader2, Mic, RotateCcw, Scissors, Square } from "lucide-react";
+import { BadgeCheck, Download, Fuel, Loader2, Mic, Pointer, RotateCcw, Scissors, Square } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { openStream, stampMinute, verifyOnChain, type MinuteCheck } from "@/lib/client/api";
@@ -180,7 +180,9 @@ export function TryIt() {
       {pcm && phase.kind !== "done" && (
         <div className="rounded-3xl border border-line bg-card p-6 sm:p-8">
           <p className="font-medium">Choose where to cut</p>
-          <p className="mt-1 text-sm text-muted">Tap the waveform where &ldquo;never&rdquo; is. The edited copy will have that stretch removed.</p>
+          <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted">
+            <Pointer size={14} /> Tap where &ldquo;never&rdquo; is
+          </p>
           <button
             type="button"
             aria-label="Choose the cut point"
@@ -215,7 +217,9 @@ export function TryIt() {
             {phase.kind === "stamping" ? <Loader2 size={16} className="animate-spin" /> : <Scissors size={16} />}
             {phase.kind === "stamping" ? phase.step : "Stamp it, cut it, check both"}
           </button>
-          <p className="mt-3 text-xs text-muted">Stamping uses a temporary key for this tab and two transactions on Monad testnet, paid by Clipright.</p>
+          <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted">
+            <Fuel size={12} /> 2 testnet transactions, gas paid by Clipright
+          </p>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { checkClip, type CheckResult, type MinuteFile } from "@clipright/engine";
+import { checkClip, type CheckResult, type Landmark, type MinuteFile } from "@clipright/engine";
 import { FileVideo, Loader2, RotateCcw, Upload } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useRef, useState } from "react";
@@ -14,7 +14,7 @@ import { Verdict } from "./Verdict";
 type Phase =
   | { kind: "idle" }
   | { kind: "working"; stage: string; progress: number }
-  | { kind: "done"; file: File; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number; owner: Hex | null }
+  | { kind: "done"; file: File; landmarks: Landmark[]; result: CheckResult; stream: StreamMeta | null; chain: MinuteCheck[]; clipUrl: string; fileName: string; ms: number; duration: number; onRecord: OnRecord[]; hasVideo: boolean; streamsChecked: number; minutesChecked: number; owner: Hex | null }
   | { kind: "error"; message: string };
 
 export function Checker() {
@@ -67,6 +67,7 @@ export function Checker() {
       setPhase({
         kind: "done",
         file,
+        landmarks: clip.landmarks,
         result,
         stream,
         chain,
@@ -163,7 +164,7 @@ export function Checker() {
               </button>
             </div>
             <Verdict result={phase.result} stream={phase.stream} chain={phase.chain} clipUrl={phase.clipUrl} duration={phase.duration} onRecord={phase.onRecord} hasVideo={phase.hasVideo} streamsChecked={phase.streamsChecked} minutesChecked={phase.minutesChecked} owner={phase.owner} />
-            {phase.result.status === "no-match" && <Identify file={phase.file} />}
+            {phase.result.status === "no-match" && <Identify file={phase.file} landmarks={phase.landmarks} duration={phase.duration} />}
           </motion.div>
         )}
       </AnimatePresence>

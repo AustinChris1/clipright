@@ -16,7 +16,7 @@ export function Proofs() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <p className="font-mono text-xs uppercase tracking-[0.2em] text-stamp">Try to fool it</p>
-      <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight">Four clips from our test suite, and what Clipright said.</h2>
+      <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold tracking-tight">Four test clips. Four right answers.</h2>
       <div className="mt-12 grid gap-4 sm:grid-cols-2">
         {cases.map((c, i) => (
           <motion.div

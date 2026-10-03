@@ -1,5 +1,7 @@
 // Where might an unstamped clip come from? Open catalogs first (Wikiquote, trace.moe), then an AI guess.
 // None of this is proof; the UI keeps it apart from what is verified on Monad.
+import { rememberLead, wavToPcm } from "@/lib/server/leads";
+import type { CatalogHit } from "@/lib/server/store";
 
 export const maxDuration = 60;
 
@@ -41,12 +43,22 @@ interface AiAnswer {
   confidence: number;
 }
 
-interface CatalogHit {
-  source: "Wikiquote" | "trace.moe";
-  title: string;
-  url: string;
-  matched: string;
-  detail?: string;
+// Whisper on Groq writes down the speech when Gemini is busy or out of quota; no picture description then.
+async function transcribe(audio: string): Promise<string[]> {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return [];
+  const form = new FormData();
+  form.append("file", new Blob([Buffer.from(audio, "base64")], { type: "audio/wav" }), "clip.wav");
+  form.append("model", process.env.GROQ_WHISPER_MODEL || "whisper-large-v3-turbo");
+  form.append("response_format", "json");
+  const res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", { method: "POST", headers: { authorization: `Bearer ${key}` }, body: form });
+  if (!res.ok) throw new Error(`Whisper answered ${res.status}`);
+  const text = String((await res.json()).text ?? "").trim();
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map((l) => l.trim())
+    .filter((l) => l.split(/\s+/).length >= 4)
+    .slice(0, 6);
 }
 
 // Best effort per serverless instance; Gemini's own free-tier quota is the hard limit.
@@ -93,7 +105,7 @@ async function wikiquote(lines: string[]): Promise<CatalogHit[]> {
     lines
       .map((l) => l.replace(/["“”]/g, "").trim())
       .filter((l) => l.split(/\s+/).length >= 4)
-      .slice(0, 4)
+      .slice(0, 6)
       .map(async (line) => {
         const phrase = line.split(/\s+/).slice(0, 10).join(" ").replace(/[.,!?;:]+$/, "");
         const url = `https://en.wikiquote.org/w/api.php?action=query&list=search&srlimit=3&format=json&srsearch=${encodeURIComponent(`"${phrase}"`)}`;
@@ -139,7 +151,7 @@ async function traceMoe(frames: string[]): Promise<CatalogHit[]> {
 
 export async function POST(req: Request) {
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return Response.json({ error: "AI identification is not configured here." }, { status: 503 });
+  if (!key && !process.env.GROQ_API_KEY) return Response.json({ error: "AI identification is not configured here." }, { status: 503 });
   const now = Date.now();
   while (recent.length && now - recent[0] > 60_000) recent.shift();
   if (recent.length >= PER_MINUTE) return Response.json({ error: "Too many lookups this minute. Try again shortly." }, { status: 429 });
@@ -150,13 +162,26 @@ export async function POST(req: Request) {
   if (!frames.length && !audio) return Response.json({ error: "Send at least one frame or the audio." }, { status: 400 });
   recent.push(now);
 
-  try {
-    const [{ model, ai }, anime] = await Promise.all([askGemini(key, frames, audio), traceMoe(frames).catch(() => [])]);
-    const lines = (ai.lines ?? []).filter(Boolean);
-    const quotes = await wikiquote(lines).catch(() => []);
-    return Response.json({ model, ai: { ...ai, lines, evidence: ai.evidence ?? [] }, catalog: [...anime, ...quotes] });
-  } catch (e) {
-    console.error("identify failed", e);
-    return Response.json({ error: e instanceof Error ? e.message : "Lookup failed" }, { status: (e as { status?: number }).status ?? 502 });
+  const [gemini, anime] = await Promise.all([
+    key ? askGemini(key, frames, audio).catch((e: Error & { status?: number }) => e) : Object.assign(new Error("Gemini is not configured."), { status: 503 }),
+    traceMoe(frames).catch(() => [] as CatalogHit[]),
+  ]);
+  let lines: string[] = [];
+  let ai: Omit<AiAnswer, "lines" | "confidence"> | null = null;
+  let model = "";
+  if (!(gemini instanceof Error)) {
+    lines = (gemini.ai.lines ?? []).filter(Boolean);
+    ai = { description: gemini.ai.description, title: gemini.ai.title || undefined, kind: gemini.ai.kind, evidence: gemini.ai.evidence ?? [] };
+    model = gemini.model;
+  } else if (audio) {
+    lines = await transcribe(audio).catch(() => []);
+    model = "whisper on Groq";
   }
+  if (gemini instanceof Error && !lines.length && !anime.length) {
+    console.error("identify failed", gemini);
+    return Response.json({ error: gemini.message }, { status: gemini.status ?? 502 });
+  }
+  const catalog = [...anime, ...(await wikiquote(lines).catch(() => []))];
+  if (audio && catalog.length) await rememberLead(wavToPcm(audio), catalog).catch((e) => console.error("lead save failed", e));
+  return Response.json({ model, lines, ai, catalog });
 }

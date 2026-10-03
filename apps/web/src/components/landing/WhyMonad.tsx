@@ -1,5 +1,6 @@
 "use client";
 
+import { EyeOff, Music, Radio, ScanFace } from "lucide-react";
 import { animate, motion, useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,16 +23,16 @@ function Count({ to, decimals = 0, prefix = "", suffix = "" }: { to: number; dec
 }
 
 const stats = [
-  { value: <Count to={0.3} decimals={1} suffix="s" />, label: "block time", note: "a stamp lands long before anyone can cut and post a clip" },
-  { value: <Count to={0.6} decimals={1} suffix="s" />, label: "to finality", note: "the record is settled, not pending" },
-  { value: <Count to={0.1} decimals={2} prefix="$" />, label: "per six-hour stream", note: "360 stamps at the minimum fee, MON at $0.027 to $0.029" },
+  { value: <Count to={0.3} decimals={1} suffix="s" />, label: "block time", note: "stamped before a clip can be cut" },
+  { value: <Count to={0.6} decimals={1} suffix="s" />, label: "to finality", note: "settled, not pending" },
+  { value: <Count to={0.1} decimals={2} prefix="$" />, label: "per six-hour stream", note: "360 stamps, MON at $0.027 to $0.029" },
 ];
 
 const limits = [
-  "It is not a deepfake detector. It proves footage lines up with what was stamped.",
-  "If a clip swaps the sound for a song, only the picture check is left.",
-  "It does not count views or catch bot views.",
-  "It only covers streams that were stamped.",
+  { icon: ScanFace, text: "Not a deepfake detector" },
+  { icon: Music, text: "Swapped sound leaves only the picture check" },
+  { icon: EyeOff, text: "No view counting" },
+  { icon: Radio, text: "Stamped streams only" },
 ];
 
 export function WhyMonad() {
@@ -58,15 +59,15 @@ export function WhyMonad() {
         <ul className="mt-10 space-y-3">
           {limits.map((l, i) => (
             <motion.li
-              key={l}
+              key={l.text}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
               className="flex gap-3 rounded-2xl border border-line bg-card p-4"
             >
-              <span className="font-mono text-xs text-stamp">0{i + 1}</span>
-              <span>{l}</span>
+              <l.icon size={18} className="shrink-0 text-stamp" />
+              <span>{l.text}</span>
             </motion.li>
           ))}
         </ul>

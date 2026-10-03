@@ -62,7 +62,7 @@ export function Hero() {
             Proof a clip came from the stream.
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mt-6 max-w-md text-lg text-muted">
-            Stamp what you say live. Then anyone can check a clip of it: which stream, which second, and anything cut out.
+            Stamp it live. Anyone can check a clip: the stream, the second, and what was cut.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-8 flex flex-wrap gap-3">
             <Link href="/try" className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-paper">

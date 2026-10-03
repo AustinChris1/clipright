@@ -146,8 +146,8 @@ export function Studio() {
               <p className="font-mono text-xs break-all">{key.account.address}</p>
               <p className="text-muted">
                 {key.kind === "passkey"
-                  ? "Derived from your passkey with Clipright's own salt. It signs stamps and holds no funds."
-                  : "A tab-only key for devices without passkey key derivation. It disappears when you close the tab."}
+                  ? "Derived from your passkey. Signs stamps, holds no funds."
+                  : "Tab-only key. Gone when the tab closes."}
               </p>
             </div>
           ) : (
@@ -247,7 +247,7 @@ export function Studio() {
 
         {live && (
           <div>
-            <p className="mb-2 text-xs text-muted">This minute, second by second. A stamp lands on Monad when it fills.</p>
+            <p className="mb-2 text-xs text-muted">This minute. Stamped on Monad when it fills.</p>
             <div className="flex gap-[3px]">
               {Array.from({ length: 60 }, (_, i) => (
                 <div key={i} className={`h-6 flex-1 rounded-sm transition-colors ${i < secondInMinute ? "bg-ink" : "bg-line"}`} />
@@ -258,7 +258,7 @@ export function Studio() {
 
         <div className="rounded-3xl border border-line bg-card p-5">
           <h3 className="font-display text-lg font-semibold">Stamps</h3>
-          {rows.length === 0 && <p className="mt-2 text-sm text-muted">Each finished minute appears here with its Monad transaction.</p>}
+          {rows.length === 0 && <p className="mt-2 text-sm text-muted">Minutes land here as they are stamped.</p>}
           <ul className="mt-3 divide-y divide-line">
             <AnimatePresence initial={false}>
               {rows.map((r) => (

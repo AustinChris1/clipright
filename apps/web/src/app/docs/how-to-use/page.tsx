@@ -48,7 +48,8 @@ export default function HowToUse() {
           ]}
         />
         <Callout title="No match? Find a lead">
-          A clip from a show, a film, or a stream nobody stamped never matches. Under a no match, press Find a lead. Clipright sends 8 small frames and up to
+          A clip from a show, a film, or a stream nobody stamped never matches. Under a no match, Clipright first shows any lead already found for the same
+          clip, marked seen before, using only its sound fingerprint. To look further, press Find a lead. Clipright sends 8 small frames and up to
           30 seconds of sound to Google&apos;s Gemini, which writes down what is said. Those exact lines are searched on Wikiquote, and anime frames on
           trace.moe. Catalog hits are shown in green with a link to check; Gemini&apos;s own guess is shown in amber as unverified. A lead is not proof, and it
           is never written to Monad.
