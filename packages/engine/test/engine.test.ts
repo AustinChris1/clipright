@@ -85,6 +85,18 @@ test("a cut inside a clip is reported with its length, and an untouched clip rep
   assert.ok(Math.abs(cuts[0].atClipSec - 5) <= 1, `cut at ${cuts[0].atClipSec}`);
 });
 
+test("a silent pause inside a clip is not reported as inserted", () => {
+  const id = keccak256(toHex("p"));
+  const at = (sec: number) => Math.round(sec * SAMPLE_RATE);
+  const stream = noiseBurstSignal(60, 7);
+  stream.fill(0, at(23.8), at(25.3));
+  const minutes = [buildMinute(id, 0, minuteLandmarks(stream, 0), new Map(), 60)];
+  const clip = stream.slice(at(20), at(32));
+  const r = checkClip({ duration: 12, landmarks: landmarks(clip), frames: [] }, [{ streamId: id, minutes }]);
+  assert.equal(r.status, "match");
+  assert.equal(r.edits.length, 0, JSON.stringify(r.edits));
+});
+
 test("resampler keeps a tone below the new Nyquist and removes one above it", () => {
   const from = 48000;
   const tone = (hz: number) => Float32Array.from({ length: from }, (_, i) => Math.sin((2 * Math.PI * hz * i) / from));

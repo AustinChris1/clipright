@@ -10,6 +10,8 @@ const PICTURE_VOTE_BITS = 70;
 const VOTE_BIN = 0.25;
 const SEGMENT_MIN_HITS = 12;
 const MAX_SEGMENTS = 4;
+const QUIET_MIN_LANDMARKS = 4;
+const QUIET_SHARE = 0.3;
 
 export interface ClipFrame {
   t: number;
@@ -168,9 +170,23 @@ export function findSegments(clip: Landmark[], index: Map<number, number[]>, cli
     owner.push(bi);
   }
 
+  // A second with little sound in the clip (a pause) is no evidence of an edit; it continues the segment around it.
+  const density = new Array(seconds).fill(0);
+  for (const l of clip) {
+    const s = Math.floor(l.frame / FRAMES_PER_SECOND);
+    if (s < seconds) density[s]++;
+  }
+  const sorted = density.filter((n) => n > 0).sort((a, b) => a - b);
+  const typical = sorted[Math.floor(sorted.length / 2)] ?? 0;
+  const quiet = (s: number) => density[s] < Math.max(QUIET_MIN_LANDMARKS, typical * QUIET_SHARE);
+
   let runs: Segment[] = [];
   for (let s = 0; s < seconds; s++) {
-    if (owner[s] === -1) continue;
+    if (owner[s] === -1) {
+      const last = runs[runs.length - 1];
+      if (last && quiet(s) && last.clipEnd === s) last.clipEnd = Math.min(s + 1, clipSeconds);
+      continue;
+    }
     const offsetSec = offsets[owner[s]] / FRAMES_PER_SECOND;
     const last = runs[runs.length - 1];
     if (last && last.offsetSec === offsetSec && last.clipEnd >= s) {
