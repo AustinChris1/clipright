@@ -38,6 +38,7 @@ export interface SecondVerdict {
   pictureBits: number | null;
   audio: boolean;
   picture: boolean;
+  quiet?: boolean;
 }
 
 export interface AlsoFound {
@@ -138,6 +139,18 @@ export function audioIsMatch(m: AudioMatch | null): boolean {
 }
 
 // A clip stitched from several moments lines up at several offsets. Find each offset and the seconds it explains.
+// Seconds of the clip with little sound in them, such as a pause, judged against the clip's own typical second.
+export function quietSeconds(clip: Landmark[], seconds: number): boolean[] {
+  const density = new Array(seconds).fill(0);
+  for (const l of clip) {
+    const s = Math.floor(l.frame / FRAMES_PER_SECOND);
+    if (s < seconds) density[s]++;
+  }
+  const sorted = density.filter((n) => n > 0).sort((a, b) => a - b);
+  const typical = sorted[Math.floor(sorted.length / 2)] ?? 0;
+  return density.map((n) => n < Math.max(QUIET_MIN_LANDMARKS, typical * QUIET_SHARE));
+}
+
 export function findSegments(clip: Landmark[], index: Map<number, number[]>, clipSeconds: number, primary: AudioMatch): { segments: Segment[]; edits: Edit[] } {
   const items = clip.map((l) => ({ second: Math.floor(l.frame / FRAMES_PER_SECOND), ds: (index.get(l.hash) ?? []).map((sf) => sf - l.frame) }));
   const explains = (ds: number[], d0: number) => ds.some((d) => Math.abs(d - d0) <= 1);
@@ -171,14 +184,8 @@ export function findSegments(clip: Landmark[], index: Map<number, number[]>, cli
   }
 
   // A second with little sound in the clip (a pause) is no evidence of an edit; it continues the segment around it.
-  const density = new Array(seconds).fill(0);
-  for (const l of clip) {
-    const s = Math.floor(l.frame / FRAMES_PER_SECOND);
-    if (s < seconds) density[s]++;
-  }
-  const sorted = density.filter((n) => n > 0).sort((a, b) => a - b);
-  const typical = sorted[Math.floor(sorted.length / 2)] ?? 0;
-  const quiet = (s: number) => density[s] < Math.max(QUIET_MIN_LANDMARKS, typical * QUIET_SHARE);
+  const silent = quietSeconds(clip, seconds);
+  const quiet = (s: number) => silent[s];
 
   let runs: Segment[] = [];
   for (let s = 0; s < seconds; s++) {
@@ -300,6 +307,7 @@ export function verdicts(
   toClip = clip.duration,
 ): SecondVerdict[] {
   const bySecond = new Map(records.map((r) => [r.s, r]));
+  const silent = quietSeconds(clip.landmarks, Math.max(1, Math.ceil(clip.duration)));
   const first = Math.ceil(offsetSec + fromClip);
   const last = Math.floor(offsetSec + toClip) - 1;
   const out: SecondVerdict[] = [];
@@ -316,6 +324,7 @@ export function verdicts(
       pictureBits,
       audio: audioHits >= 2,
       picture: pictureBits !== null && pictureBits <= PICTURE_MATCH_BITS,
+      quiet: clipSecond >= 0 && clipSecond < silent.length ? silent[clipSecond] : false,
     });
   }
   return out;

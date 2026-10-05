@@ -222,7 +222,7 @@ export interface VerdictFile {
   duration: number;
   hasVideo: boolean;
   audioHits: number;
-  seconds: { s: number; audio: boolean; picture: boolean; audioHits: number; pictureBits: number | null }[];
+  seconds: { s: number; audio: boolean; picture: boolean; audioHits: number; pictureBits: number | null; quiet?: boolean }[];
   edits: { kind: "cut" | "inserted" | "reordered"; atClipSec: number; seconds: number }[];
   thumb: string | null;
   landmarks: [hash: number, frame: number][];

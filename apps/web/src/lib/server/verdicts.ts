@@ -55,7 +55,7 @@ export async function createVerdict(req: VerdictRequest): Promise<VerdictFile | 
     duration: req.duration,
     hasVideo: clip.frames.length > 0,
     audioHits: result.audio?.hits ?? 0,
-    seconds: result.seconds.map(({ s, audio, picture, audioHits, pictureBits }) => ({ s, audio, picture, audioHits, pictureBits })),
+    seconds: result.seconds.map(({ s, audio, picture, audioHits, pictureBits, quiet }) => ({ s, audio, picture, audioHits, pictureBits, quiet })),
     edits: result.edits,
     thumb: req.thumb,
     landmarks: req.landmarks,

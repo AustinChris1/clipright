@@ -221,7 +221,7 @@ function Evidence({ label, value, sub }: { label: string; value: string; sub: st
   );
 }
 
-export function SecondStrip({ seconds }: { seconds: Pick<SecondVerdict, "s" | "audio" | "picture" | "audioHits" | "pictureBits">[] }) {
+export function SecondStrip({ seconds }: { seconds: Pick<SecondVerdict, "s" | "audio" | "picture" | "audioHits" | "pictureBits" | "quiet">[] }) {
   return (
     <div className="mt-8">
       <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
@@ -229,6 +229,7 @@ export function SecondStrip({ seconds }: { seconds: Pick<SecondVerdict, "s" | "a
           ["bg-match", "sound and picture"],
           ["bg-match/55", "sound only"],
           ["bg-warn/70", "picture only"],
+          ["bg-line", "silence"],
           ["bg-stamp", "no match"],
         ].map(([cls, label]) => (
           <span key={label} className="inline-flex items-center gap-1.5">
@@ -239,7 +240,7 @@ export function SecondStrip({ seconds }: { seconds: Pick<SecondVerdict, "s" | "a
       <div className="flex gap-1">
         {seconds.map((s, i) => {
           const both = s.audio && s.picture;
-          const cls = both ? "bg-match" : s.audio ? "bg-match/55" : s.picture ? "bg-warn/70" : "bg-stamp";
+          const cls = both ? "bg-match" : s.audio ? "bg-match/55" : s.picture ? "bg-warn/70" : s.quiet ? "bg-line" : "bg-stamp";
           const jump = i > 0 && s.s !== seconds[i - 1].s + 1;
           return (
             <motion.div

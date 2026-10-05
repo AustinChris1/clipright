@@ -72,7 +72,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         <div style={{ display: "flex", gap: 5, marginTop: 30 }}>
           {cells.map((s, i) => {
             const jump = i > 0 && s.s !== cells[i - 1].s + 1;
-            const bg = s.audio && s.picture ? C.match : s.audio ? "#7fb89c" : s.picture ? "#d6b16a" : C.stamp;
+            const bg = s.audio && s.picture ? C.match : s.audio ? "#7fb89c" : s.picture ? "#d6b16a" : s.quiet ? C.line : C.stamp;
             return <div key={i} style={{ display: "flex", flex: 1, height: 44, borderRadius: 7, background: bg, marginLeft: jump ? 14 : 0 }} />;
           })}
         </div>

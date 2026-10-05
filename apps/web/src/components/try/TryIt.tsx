@@ -276,7 +276,7 @@ function ResultCard({ title, outcome, file }: { title: string; outcome: Outcome;
         {result.seconds.map((s, i) => (
           <span
             key={`${s.s}-${i}`}
-            className={`h-8 flex-1 rounded ${s.audio ? "bg-match" : "bg-stamp"} ${i > 0 && s.s !== result.seconds[i - 1].s + 1 ? "ml-2 outline outline-2 outline-warn" : ""}`}
+            className={`h-8 flex-1 rounded ${s.audio ? "bg-match" : s.quiet ? "bg-line" : "bg-stamp"} ${i > 0 && s.s !== result.seconds[i - 1].s + 1 ? "ml-2 outline outline-2 outline-warn" : ""}`}
           />
         ))}
       </div>

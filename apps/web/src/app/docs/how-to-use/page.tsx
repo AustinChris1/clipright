@@ -48,6 +48,7 @@ export default function HowToUse() {
             [<span key="b" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-match/55" />Light green</span>, "Sound matches; the picture could not be compared."],
             [<span key="c" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-warn/70" />Amber</span>, "Only the picture matches."],
             [<span key="d" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-stamp" />Red</span>, "Nothing matches this second."],
+            [<span key="f" className="inline-flex items-center gap-2"><span className="size-3 rounded-sm bg-line" />Grey</span>, "Silence in the clip, such as a pause. It counts as neither a match nor an edit."],
             [<span key="e" className="inline-flex items-center gap-2"><span className="h-3 w-1 rounded-full bg-warn" />Amber bar</span>, "A cut: the clip jumps forward in the stream here."],
           ]}
         />
