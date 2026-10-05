@@ -1,7 +1,7 @@
 "use client";
 
 import type { MinuteFile } from "@clipright/engine";
-import { Camera, Download, ExternalLink, Fingerprint, KeyRound, Loader2, MonitorUp, Radio, Square } from "lucide-react";
+import { AppWindow, Camera, Download, ExternalLink, Fingerprint, KeyRound, Loader2, Radio, Square, Volume2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -93,7 +93,7 @@ export function Studio() {
       const m =
         kind === "camera"
           ? await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true })
-          : await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+          : await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" } as MediaTrackConstraints, audio: true });
       if (!m.getAudioTracks().length) throw new Error("No audio was shared. For a tab, tick 'Share tab audio'.");
       setMedia(m);
     } catch (e) {
@@ -194,13 +194,16 @@ export function Studio() {
           )}
         </Step>
 
-        <Step n={3} title="Pick a source" done={!!media}>
-          <div className="grid grid-cols-2 gap-2">
-            <button disabled={!stream || live} onClick={() => pick("camera")} className={`${btn} justify-center border border-line`}>
-              <Camera size={16} /> Camera
+        <Step n={3} title="Share your stream" done={!!media}>
+          <div className="space-y-2">
+            <button disabled={!stream || live} onClick={() => pick("screen")} className={`${btn} w-full justify-center bg-ink text-paper`}>
+              <AppWindow size={16} /> Share your stream&apos;s tab
             </button>
-            <button disabled={!stream || live} onClick={() => pick("screen")} className={`${btn} justify-center border border-line`}>
-              <MonitorUp size={16} /> Tab or screen
+            <p className="inline-flex items-center gap-1.5 text-xs text-muted">
+              <Volume2 size={13} /> Pick the tab playing your stream and tick Share tab audio
+            </p>
+            <button disabled={!stream || live} onClick={() => pick("camera")} className="w-full pt-1 text-center text-xs text-muted underline decoration-line underline-offset-4">
+              <Camera size={12} className="mr-1 inline" /> Or use this device&apos;s camera
             </button>
           </div>
         </Step>

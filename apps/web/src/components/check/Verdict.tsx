@@ -62,7 +62,8 @@ export function Verdict({
         </div>
         {result.status === "no-match" ? (
           <>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Not on record.</h2>
+            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">No Clipright record.</h2>
+            <p className="mt-2 text-lg">That doesn&apos;t make it fake. It just wasn&apos;t stamped while it aired.</p>
             <div className="mt-4 flex flex-wrap gap-2 text-sm">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5">
                 <Radio size={14} className="text-muted" /> {streamsChecked} stream{streamsChecked === 1 ? "" : "s"} checked
@@ -72,7 +73,7 @@ export function Verdict({
               </span>
             </div>
             <p className="mt-4 inline-flex items-start gap-2 text-sm text-muted">
-              <Info size={15} className="mt-0.5 shrink-0" /> Only footage stamped while it streamed can match. TV, films and unstamped streams never will.
+              <Info size={15} className="mt-0.5 shrink-0" /> Only streams stamped live can match, so TV, films and unstamped streams never will.
             </p>
             <a href="/docs/test-it#clips" className="mt-3 block text-sm text-ink underline decoration-line underline-offset-4">
               Try a clip that is on record

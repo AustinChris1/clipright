@@ -9,7 +9,7 @@ import { Wordmark } from "./Mark";
 const links = [
   { href: "/try", label: "Try it" },
   { href: "/check", label: "Check a clip" },
-  { href: "/live", label: "Go live" },
+  { href: "/live", label: "Stamp a stream" },
   { href: "/streams", label: "Streams" },
   { href: "/docs", label: "Docs" },
 ];

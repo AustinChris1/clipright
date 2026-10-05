@@ -67,7 +67,7 @@ export default function DocsOverview() {
         <div className="grid gap-3 sm:grid-cols-3">
           {[
             { href: "/check", title: "Check a clip", body: "Drop any video file." },
-            { href: "/live", title: "Go live", body: "Stamp a stream from your browser." },
+            { href: "/live", title: "Stamp a stream", body: "Stamp the stream you already run on Twitch, YouTube or X." },
             { href: "/docs/test-it", title: "Test it yourself", body: "Make clips that try to fool it." },
           ].map((c) => (
             <Link key={c.href} href={c.href} className="group rounded-2xl border border-line bg-card p-5 transition hover:border-ink">

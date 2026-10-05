@@ -9,7 +9,7 @@
 
 **Proof that a clip really came from the stream.**
 
-Paste or drop a short video clip. Clipright tells you which stream it came from, down to the second, or tells you plainly that it does not match anything on record.
+Creators keep streaming on Twitch, YouTube or X. Clipright stamps the stream beside them, one code a minute on Monad. Later, anyone can drop a clip and learn which stream it came from, down to the second, and whether anything was cut out. A clip with no record is not called fake; it just was not stamped.
 
 **Live: [clipright.vercel.app](https://clipright.vercel.app)** on Monad testnet.
 
@@ -30,11 +30,11 @@ Big rights holders have tools for this, such as YouTube's Content ID, but those 
 
 ## What Clipright does
 
-Think of it as a notary sitting next to the stream, stamping every minute.
+Think of it as a notary sitting next to the stream, stamping every minute. It is not a streaming platform: it never hosts the video, and it works beside the one the creator already uses.
 
 | Step | What happens | In plain terms |
 |---|---|---|
-| **1. Record** | While a creator streams, Clipright listens to the sound and looks at the picture. | It takes notes on the stream. |
+| **1. Record** | While a creator streams on their usual platform, Clipright listens to the sound and looks at the picture of their stream's tab. | It takes notes on the stream. |
 | **2. Stamp** | Every minute, it turns that minute into one short code and writes it on the Monad blockchain. | A public, timestamped receipt that cannot be changed later. |
 | **3. Check** | Anyone drops a clip into Clipright. It compares the clip with the stamped minutes. | "Yes, this is from that stream, at this exact second" or "No match." |
 
@@ -111,7 +111,7 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 
 - [x] **Matcher gate passes.** A synthetic two-minute stream and five clips (see below), run with `pnpm gate`.
 - [x] **Contract** with 8 passing tests, including one proving the TypeScript engine and the Solidity contract build identical proofs. A minute cannot be stamped before it could have started, so a stream stamps no faster than real time.
-- [x] **Wallet linking with Dynamic.** In Go live, a creator can connect any wallet through Dynamic (or an email wallet) and link it to their passkey key. A second contract, `CreatorLinks` at [`0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF`](https://testnet.monadscan.com/address/0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF), needs both signatures. Creators get a public page at `/creators/<wallet>`, and matching checks name the creator.
+- [x] **Wallet linking with Dynamic.** In Stamp a stream, a creator can connect any wallet through Dynamic (or an email wallet) and link it to their passkey key. A second contract, `CreatorLinks` at [`0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF`](https://testnet.monadscan.com/address/0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF), needs both signatures. Creators get a public page at `/creators/<wallet>`, and matching checks name the creator.
 - [x] **Gas protection.** The relayer refuses work past a per-hour open limit, a per-day stamp limit, a 240-minute stream cap, or a low-balance floor. The counts come from onchain events, so every server instance agrees.
 - [x] **Try it in a minute.** Say one sentence; it is stamped on Monad, a copy is cut where you tap, and both are checked. The untouched copy matches; the edited copy is reported as "1.0 s cut out at 7s".
 - [x] **Cut and splice detection.** A clip stitched from several moments of a stream is matched piece by piece, and the check names what was cut out or inserted. Gate clip F (2 s removed) is reported exactly.
@@ -157,7 +157,7 @@ cd apps/web && NEXT_PUBLIC_CHAIN_ID=31337 pnpm dev
 
 **Quickest test.** A reference stream is stamped on the live registry. Download a test clip from [the docs](https://clipright.vercel.app/docs/test-it#clips) (vertical with captions, sound swapped, unrelated, scaled down, spliced) and drop it into [Check a clip](https://clipright.vercel.app/check).
 
-**Try to fool it yourself.** Download a recording from the Go live page, then cut test clips from it:
+**Try to fool it yourself.** Download a recording from the Stamp a stream page, then cut test clips from it:
 
 ```bash
 node packages/engine/scripts/make-clips.ts clipright-recording.webm 40   # start 40s in

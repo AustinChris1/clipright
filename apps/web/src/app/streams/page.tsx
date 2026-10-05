@@ -19,7 +19,7 @@ export default async function StreamsPage() {
         Read from Monad via {source === "envio-hypersync" ? "Envio HyperSync" : source === "public-rpc" ? "public RPC (recent blocks only)" : "nothing"}
       </p>
       <ul className="mt-10 divide-y divide-line rounded-3xl border border-line bg-card">
-        {streams.length === 0 && <li className="p-6 text-sm text-muted">Nothing stamped yet. Go live to create the first record.</li>}
+        {streams.length === 0 && <li className="p-6 text-sm text-muted">Nothing stamped yet. Stamp a stream to create the first record.</li>}
         {streams.map((s) => (
           <li key={s.streamId}>
             <Link href={`/streams/${s.streamId}`} className="group flex items-center justify-between gap-4 p-5 transition hover:bg-paper">

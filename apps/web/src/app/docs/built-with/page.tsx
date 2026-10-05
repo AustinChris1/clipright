@@ -99,7 +99,7 @@ export default function BuiltWith() {
           head={[]}
           rows={[
             ["Feature", "Create a passkey, Use my existing passkey"],
-            ["See it", <A key="s" href="/live">Go live, step 1</A>],
+            ["See it", <A key="s" href="/live">Stamp a stream, step 1</A>],
             ["Code", files("apps/web/src/lib/client/passkey.ts")],
           ]}
         />
@@ -115,7 +115,7 @@ export default function BuiltWith() {
           head={[]}
           rows={[
             ["Feature", "Link this wallet; Stamped by on a match; creator pages"],
-            ["See it", <A key="s" href="/live">Go live, after creating a key</A>],
+            ["See it", <A key="s" href="/live">Stamp a stream, after creating a key</A>],
             ["Code", files("apps/web/src/components/wallet/WalletProvider.tsx", "apps/web/src/components/wallet/LinkWallet.tsx", "packages/contracts/contracts/CreatorLinks.sol")],
           ]}
         />

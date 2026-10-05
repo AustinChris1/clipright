@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BadgeCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, ShieldCheck } from "lucide-react";
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -72,6 +72,9 @@ export function Hero() {
               Check a clip
             </Link>
           </motion.div>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 inline-flex items-center gap-2 text-sm text-muted">
+            <ShieldCheck size={16} className="shrink-0 text-match" /> Works beside Twitch, YouTube and X. Clipright never hosts your video.
+          </motion.p>
         </div>
 
         <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="rounded-[2rem] border border-line bg-card p-5 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.35)] sm:p-7">

@@ -73,8 +73,8 @@ export default function HowToUse() {
             },
             { title: "Open a stream", body: "Give it a title and press Open stream. This is a transaction on Monad; Clipright pays the gas." },
             {
-              title: "Pick a source",
-              body: "Camera uses your webcam and microphone. Tab or screen lets you share a browser tab; tick Share tab audio, because the sound carries most of the fingerprint.",
+              title: "Share your stream",
+              body: "Keep streaming on Twitch, YouTube or X as usual. Open your live stream in a browser tab, press Share your stream's tab, pick that tab and tick Share tab audio: the sound carries most of the fingerprint, and sharing an OBS window usually captures none. The camera option stamps this device's webcam and microphone instead.",
             },
             {
               title: "Start stamping",
