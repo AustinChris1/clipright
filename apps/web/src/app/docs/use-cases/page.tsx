@@ -35,7 +35,7 @@ export default function UseCases() {
           who="Streamer"
           scenario="A 12-second clip of you saying something you never said is spreading."
           steps={[
-            "You stamped that stream as you went live.",
+            "Clipright was stamping your Twitch stream's tab while you were live.",
             "You drop the viral clip into Check a clip.",
             "The sound only partly lines up, and the seconds that were changed show red.",
           ]}
@@ -54,7 +54,7 @@ export default function UseCases() {
           who="Journalist"
           scenario="A clip of a public figure on a livestream is going viral and you need to know if it is genuine before writing about it."
           steps={["Download the clip.", "Drop it into Check a clip.", "Read the stream, the time range and the per-second evidence."]}
-          result="Either a match you can cite, with the onchain stamp times, or a clear no match, meaning the clip is not from any stamped stream."
+          result="Either a match you can cite, with the onchain stamp times, or no Clipright record. That means the clip was not stamped, not that it is fake."
         />
       </Section>
 
@@ -62,8 +62,12 @@ export default function UseCases() {
         <Case
           who="Clipper"
           scenario="You are paid per view to cut moments from a streamer's broadcasts, and the campaign asks for proof that your clip is a faithful cut."
-          steps={["You cut and post your clip as usual: vertical, captioned.", "You or the campaign drops it into Check a clip."]}
-          result="A second-accurate match against the streamer's own stamps, instead of someone reviewing it by eye."
+          steps={[
+            "You cut and post your clip as usual: vertical, captioned.",
+            "You drop it into Check a clip and press Get a shareable link.",
+            "You post the link next to the clip; the campaign opens it and sees the match, re-checked on Monad.",
+          ]}
+          result="A second-accurate match against the streamer's own stamps that anyone can open, instead of someone reviewing it by eye."
         />
         <Callout tone="limit" title="What this does not cover">
           Clipright confirms where footage came from. It does not count views or detect bought views; that still comes from the platform.

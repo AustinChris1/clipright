@@ -11,6 +11,10 @@ const faqs = [
     a: "That a clip came from a stream stamped while it happened: which stream, which second, and whether anything was cut out or added. It is not a deepfake detector for footage nobody stamped.",
   },
   {
+    q: "Do I have to stop using Twitch or YouTube?",
+    a: "No. Keep streaming where you stream. Clipright runs in a browser tab beside it, listens to your stream's tab and stamps every minute. It never hosts your video.",
+  },
+  {
     q: "Do I need a wallet or crypto?",
     a: "No. A passkey (Face ID, a fingerprint or your device PIN) creates the key that signs stamps, and Clipright pays the gas. Linking a wallet is optional.",
   },
@@ -24,7 +28,7 @@ const faqs = [
   },
   {
     q: "What if a clip is not on record?",
-    a: "You get an honest No match. Then Clipright can look the spoken lines up on Wikiquote for a lead you can check. AI guesses stay labelled unverified.",
+    a: "You get No Clipright record, which doesn't make it fake: it just wasn't stamped. Then Clipright can look the spoken lines up on Wikiquote for a lead you can check. AI guesses stay labelled unverified.",
   },
   {
     q: "Can a shared link be faked?",

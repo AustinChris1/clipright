@@ -96,6 +96,8 @@ These limits are part of the design, not fine print:
 - **It is not a deepfake detector.** It proves whether footage lines up with what was stamped. It cannot judge a video that was never stamped.
 - **Replaced audio weakens the match.** If a clip swaps the stream's sound for a trending song, only the picture check is left, and that only works when one of the prepared crops lines up.
 - **It does not count views or catch bot views.** If view-count reporting is added, it will repeat what the platform reports, nothing more.
+- **A stamp proves when, not who.** Anyone can stamp a tab, including one playing someone else's stream. A stamp proves those fingerprints existed at that minute and which key signed them; a linked wallet only names the key. If two stamps hold the same footage, the earlier one is earlier, not more legitimate.
+- **No record is not a verdict of fake.** A clip from a stream nobody stamped gets "No Clipright record. That doesn't make it fake."
 - **It only covers streams that were stamped.** Old footage, or streams by creators not using Clipright, cannot be checked. Find a lead can suggest where such a clip is from, but that is a lead, not proof.
 
 ## Who it is for

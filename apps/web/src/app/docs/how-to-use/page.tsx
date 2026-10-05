@@ -29,7 +29,7 @@ export default function HowToUse() {
             { title: "Drop a video file", body: "MP4, MOV or WebM, or an audio file. It is fingerprinted in your browser and never uploaded." },
             {
               title: "Read the verdict",
-              body: "Match: the stream and the exact time range. Pictures match, sound does not: the soundtrack was replaced or altered. No match: nothing on record lines up.",
+              body: "Match: the stream and the exact time range. Edited from a stamped stream: what was cut out or added, and where. Pictures match, sound does not: the soundtrack was replaced or altered. No Clipright record: nothing stamped lines up. That does not make the clip fake; it just was not stamped while it aired.",
             },
             {
               title: "Share the result",
@@ -65,11 +65,15 @@ export default function HowToUse() {
       </Section>
 
       <Section id="live" title="Stamp your stream">
+        <p>
+          Keep streaming on Twitch, YouTube or X. Clipright runs in a browser tab beside your stream and stamps it; it never hosts or uploads the video. The page
+          is called Stamp a stream.
+        </p>
         <Steps
           items={[
             {
               title: "Create a passkey",
-              body: "On /live, press Create a passkey and confirm with Face ID, Touch ID or your device PIN. This creates your stamping key. It signs stamps and never holds money.",
+              body: "On Stamp a stream, press Create a passkey and confirm with Face ID, Touch ID or your device PIN. This creates your stamping key. It signs stamps and never holds money.",
             },
             { title: "Open a stream", body: "Give it a title and press Open stream. This is a transaction on Monad; Clipright pays the gas." },
             {

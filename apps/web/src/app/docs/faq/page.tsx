@@ -5,6 +5,22 @@ export const metadata: Metadata = { title: "Limits and FAQ | Clipright docs" };
 
 const faqs = [
   {
+    q: "Do I have to stop streaming on Twitch or YouTube?",
+    a: "No. Clipright is not a streaming platform. Keep streaming where you stream; Clipright runs in a browser tab beside it, listening to your stream's tab, and stamps every minute on Monad.",
+  },
+  {
+    q: "A clip says No Clipright record. Is it fake?",
+    a: "Not necessarily. It means nobody stamped the stream it came from, so Clipright has nothing to compare it with. Clipright only vouches for what it witnessed; a clip from an old stream or a show can be perfectly real.",
+  },
+  {
+    q: "Couldn't someone stamp someone else's stream?",
+    a: "Yes. Anyone can stamp a tab, including one playing another person's stream. A stamp proves those fingerprints existed at that minute and which key signed them; it does not prove the signer is the performer. A linked wallet is only a name for that key. If two stamps hold the same footage, the earlier one is earlier, not more legitimate.",
+  },
+  {
+    q: "How is this different from C2PA content credentials?",
+    a: "Content credentials are signed data carried inside the file, and they often get stripped when a clip is re-uploaded. Clipright matches the sound and the picture themselves, so a cropped, captioned, re-encoded copy still lines up with the stamped stream.",
+  },
+  {
     q: "Is my video uploaded anywhere?",
     a: "No. Fingerprinting happens in your browser. Only the fingerprints of a stamped stream are stored, and a clip you check never leaves your device. The one exception is Find a lead, which you press yourself: it sends 8 small frames and up to 30 seconds of sound to Google's Gemini, and the transcribed lines to Wikiquote. The clip file itself is not sent.",
   },

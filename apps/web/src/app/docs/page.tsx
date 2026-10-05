@@ -1,4 +1,4 @@
-import { ArrowRight, Mic, ScanSearch, Stamp } from "lucide-react";
+import { AppWindow, ArrowRight, ScanSearch, Stamp } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Callout, DocHeader, NextPage, Section } from "@/components/docs/Prose";
@@ -7,9 +7,9 @@ import { addressUrl, chain, REGISTRY } from "@/lib/config";
 export const metadata: Metadata = { title: "Overview | Clipright docs" };
 
 const flow = [
-  { icon: Mic, title: "Record", body: "While a creator streams, their browser fingerprints the sound and picture of every second." },
+  { icon: AppWindow, title: "Record", body: "The creator streams on Twitch, YouTube or X as usual. Clipright fingerprints the sound and picture of their stream's tab, every second." },
   { icon: Stamp, title: "Stamp", body: "Each minute becomes one short code, signed with the creator's passkey and written to Monad." },
-  { icon: ScanSearch, title: "Check", body: "Anyone drops a clip. Clipright names the stream and the second it came from, or says no match." },
+  { icon: ScanSearch, title: "Check", body: "Anyone drops a clip and gets the stream, the second and anything cut out, plus a link to post beside the clip. Or: no Clipright record." },
 ];
 
 export default function DocsOverview() {
@@ -18,7 +18,7 @@ export default function DocsOverview() {
       <DocHeader
         eyebrow="Overview"
         title="Proof that a clip really came from the stream."
-        lead="Drop a short video clip into Clipright. It tells you which stream it came from, down to the second, or tells you plainly that it does not match anything on record."
+        lead="Creators keep streaming where they stream, and Clipright stamps beside it. Later, anyone can drop a clip and learn which stream it came from, down to the second, and whether anything was cut out."
       />
 
       <div className="mt-10 grid gap-3 sm:grid-cols-3">
@@ -58,14 +58,19 @@ export default function DocsOverview() {
           Think of a notary sitting next to the stream, stamping every minute. The stamps are public, on Monad, and nobody can change them afterwards. A clip is
           checked against those stamps in the viewer's own browser, so the answer does not depend on trusting Clipright's server.
         </p>
-        <Callout tone="good" title="The video never leaves the creator's device">
-          Only fingerprints are stored, and only one code per minute goes onchain.
+        <Callout tone="good" title="Not a streaming platform">
+          Twitch, YouTube or X host the stream. Clipright never hosts the video: only fingerprints are stored, and only one code per minute goes onchain.
         </Callout>
+        <p>
+          A clip with no record is not called fake. It simply was not stamped while it aired, and Clipright says exactly that. It vouches only for what it
+          witnessed.
+        </p>
       </Section>
 
       <Section id="try" title="Try it now">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {[
+            { href: "/try", title: "Try it in a minute", body: "Say one sentence and watch a cut get caught." },
             { href: "/check", title: "Check a clip", body: "Drop any video file." },
             { href: "/live", title: "Stamp a stream", body: "Stamp the stream you already run on Twitch, YouTube or X." },
             { href: "/docs/test-it", title: "Test it yourself", body: "Make clips that try to fool it." },
