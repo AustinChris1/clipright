@@ -1,8 +1,8 @@
 {
   "chainId": 10143,
-  "address": "0x6ec99690b4fa7aa54bf314c32222339f2c83a2ee",
-  "deployTx": "0xc5f53d171150482808ee581e972e4ab63c281545505a84099bad9651e3b8c47b",
-  "startBlock": 68448673,
+  "address": "0x671edc1b02c43e7f8a8a596ac15111bd4603bce4",
+  "deployTx": "0x0797e1c55efdc5a33ad2c2b4406ad9e91182859e29d05f46fb653e768fff4d47",
+  "startBlock": 68458986,
   "links": "0xDB4DE12eEbb8f935DaC60b59673D83c44A3c33EF",
   "linksTx": "0x5e9fc469407687f1d395ccb7e9e7f9ab7ad318f08ec00f69e56a58ee48318673",
   "linksStartBlock": 67605979
