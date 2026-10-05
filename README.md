@@ -123,7 +123,7 @@ Built for Monad Metropolis (submissions close 13 October 2026). As of 2 October 
 - [x] **Live studio.** Passkey key, open a stream, fingerprint camera or a shared tab, stamp each minute.
 - [x] **Recorded files** can be stamped from the command line (`pnpm --filter @clipright/web stamp-file`).
 - [x] **Mera passkey key**, tested end to end in Chrome with a virtual passkey that supports PRF. Not yet tried on a physical phone.
-- [x] **Live on Monad testnet** at [`0x671EDc1B02C43E7f8A8a596aC15111BD4603bCE4`](https://testnet.monadscan.com/address/0x671EDc1B02C43E7f8A8a596aC15111BD4603bCE4), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0x671EDc1B02C43E7f8A8a596aC15111BD4603bCE4). The four test clips pass against it in Chrome.
+- [x] **Live on Monad testnet** at [`0xfCA6CFF70FFC4Cbf38Db536A5D45EE97Cae54494`](https://testnet.monadscan.com/address/0xfCA6CFF70FFC4Cbf38Db536A5D45EE97Cae54494), source [verified on Sourcify](https://sourcify.dev/server/repo-ui/10143/0xfCA6CFF70FFC4Cbf38Db536A5D45EE97Cae54494). The four test clips pass against it in Chrome.
 - [x] **Envio HyperSync** reads the registry's full event history for the streams list and the "stamped first" ordering. Monad's public RPC limits log queries to 100 blocks (about 30 seconds of history), so without it the app can only see recent streams.
 - [x] **Hosted on Vercel** at [clipright.vercel.app](https://clipright.vercel.app). Every push to `main` deploys. Fingerprint files and the lead cache live in Postgres on Neon. The test clips pass against the live site.
 - [ ] **Demo video.**
