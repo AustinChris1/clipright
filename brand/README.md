@@ -10,7 +10,7 @@ The mark is two brackets closing on one red bar: a clip locking onto the exact s
 | `logo/wordmark-light.png`, `logo/wordmark-dark.png` | 1600 × 440, transparent | Mark and name together |
 | `x/avatar.png` | 800 × 800 | X and Discord profile picture |
 | `x/header.png` | 1500 × 500 | X header; text sits clear of the profile picture |
-| `x/post-1-what.png` to `x/post-4-lead.png` | 1600 × 900 | Thread images, captions in `posts.md` |
+| `x/post-1-what.png` to `x/post-4-lead.png` | 1600 × 900 | Images for posts about the project |
 | `cover/submission-cover.png` | 1920 × 1080 | Hackathon submission cover, video title card |
 | `cover/og.png` | 1200 × 630 | Link preview; the site serves it for every page |
 

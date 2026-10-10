@@ -1,19 +1,23 @@
+# Dependencies and builds
 node_modules
 .next
-.env
-.env.local
-packages/engine/fixtures
+.vercel
 packages/contracts/artifacts
 packages/contracts/cache
-apps/web/data
-*.log
 packages/contracts/deployments/31337.json
-apps/web/*.md
-.vercel
+
+# Secrets
 .env*
 !.env.example
-clips/
-DEMO_SCRIPT.md
 
-# Demo film workspace and renders
+# Local data, logs and generated files
+apps/web/data
+apps/web/*.md
+packages/engine/fixtures
+clips/
+*.log
+
+# Working notes and the demo film workspace
+DEMO_SCRIPT.md
+brand/posts.md
 video/
